@@ -108,58 +108,6 @@ jobs:
           test "${{ steps.gate.outputs.passed }}" = "false"
           test -f swapgate-receipt.json
 
-  container-smoke:
-    name: Container smoke (hosted API)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker build -t swapgate:test .
-      - name: Exercise the hosted API
-        run: |
-          docker run -d --name sg \
-            -e STRIPE_WEBHOOK_SECRET=whsec_smoke -e RAZORPAY_WEBHOOK_SECRET=rzpay_smoke \
-            -e RAZORPAY_TEST_ACCOUNTS=acc_test1 swapgate:test
-          sleep 6
-          KEY=$(docker exec sg swapgate teams create smoke --history /data/runs.db)
-          test ${#KEY} -gt 20
-          docker exec -e SG_KEY="$KEY" -i sg python3 - <<'EOF'
-          import hashlib, hmac, json, time, urllib.request, urllib.error
-          def post(path, raw, headers):
-              req = urllib.request.Request(f"http://127.0.0.1:8000{path}", data=raw,
-                                           method="POST", headers=headers)
-              try:
-                  with urllib.request.urlopen(req) as resp:
-                      return resp.status, resp.read()
-              except urllib.error.HTTPError as e:
-                  return e.code, e.read()
-          import os
-          suite = {"suite": {"name": "smoke", "version": "0.1.0",
-                             "metadata": {"approved": {"by": "human", "at": "t"}},
-                             "cases": [{"id": "s1", "input": [{"role": "user", "content": "Summarise the refund policy"}],
-                             "rubric": [{"type": "contains", "values": ["refund", "policy"]}],
-                             "expected": "", "tags": [], "source_trace_ids": []}]},
-                   "baseline": "mock:parity", "candidate": "mock:parity"}
-          auth = {"Authorization": f"Bearer {os.environ['SG_KEY']}",
-                  "Content-Type": "application/json"}
-          status, raw = post("/v1/compare", json.dumps(suite).encode(), auth)
-          assert status == 200, status
-          assert json.loads(raw)["receipt"]["summary"]["passed"] is True
-          assert post("/v1/compare", json.dumps(suite).encode(),
-                      {"Content-Type": "application/json"})[0] == 401
-          payload = json.dumps({"id": "evt_smoke", "type": "t", "livemode": False}).encode()
-          ts = str(int(time.time()))
-          sig = hmac.new(b"whsec_smoke", f"{ts}.".encode() + payload, hashlib.sha256).hexdigest()
-          assert post("/v1/billing/stripe/webhook", payload, {"Stripe-Signature": f"t={ts},v1={sig}"})[0] == 200
-          assert post("/v1/billing/stripe/webhook", payload, {"Stripe-Signature": "t=1,v1=dead"})[0] == 400
-          body = json.dumps({"event": "payment.captured", "account_id": "acc_test1",
-                             "payload": {"payment": {"entity": {"id": "pay_smoke"}}}}).encode()
-          sig2 = hmac.new(b"rzpay_smoke", body, hashlib.sha256).hexdigest()
-          assert post("/v1/billing/razorpay/webhook", body, {"X-Razorpay-Signature": sig2})[0] == 200
-          assert post("/v1/billing/razorpay/webhook", body, {"X-Razorpay-Signature": "dead"})[0] == 400
-          print("smoke ok")
-          EOF
-          docker stop sg >/dev/null
-
   scheduled-selftest:
     name: Scheduled self-test (run-scheduled)
     runs-on: ubuntu-latest

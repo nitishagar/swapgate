@@ -160,37 +160,6 @@ def cmd_serve_mcp(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
-def cmd_serve(args: argparse.Namespace) -> int:
-    from . import billing
-    from .receipt import DEFAULT_HOST_KEY_PATH, load_or_create_key
-    from .serve import serve_forever
-
-    try:
-        port = int(args.port)
-    except ValueError:
-        print(f"error: bad port: {args.port}", file=sys.stderr)
-        return EXIT_ERROR
-    try:
-        billing.check_test_mode({
-            "STRIPE_WEBHOOK_SECRET": os.environ.get("STRIPE_WEBHOOK_SECRET", ""),
-            "RAZORPAY_WEBHOOK_SECRET": os.environ.get("RAZORPAY_WEBHOOK_SECRET", ""),
-            "RAZORPAY_TEST_ACCOUNTS": os.environ.get("RAZORPAY_TEST_ACCOUNTS", ""),
-        })
-    except ValueError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        return EXIT_ERROR
-    try:
-        key = load_or_create_key(args.key or DEFAULT_HOST_KEY_PATH)
-        print(f"serving on 127.0.0.1:{port} (history: {args.history})")
-        serve_forever(port, args.history, key)
-    except (OSError, OverflowError) as exc:
-        print(f"error: cannot serve: {exc}", file=sys.stderr)
-        return EXIT_ERROR
-    except KeyboardInterrupt:
-        print("stopped")
-    return EXIT_OK
-
-
 def cmd_manifest(args: argparse.Namespace) -> int:
     from .manifest import check_manifest, write_manifest
 
@@ -200,18 +169,6 @@ def cmd_manifest(args: argparse.Namespace) -> int:
         return EXIT_OK if ok else EXIT_ERROR
     write_manifest(args.out)
     print(f"wrote manifest -> {args.out}")
-    return EXIT_OK
-
-
-def cmd_teams_create(args: argparse.Namespace) -> int:
-    from . import teams
-
-    try:
-        team_id = teams.create_team(args.history, args.name)
-    except ValueError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        return EXIT_ERROR
-    print(teams.issue_key(args.history, team_id))
     return EXIT_OK
 
 
@@ -289,23 +246,10 @@ def build_parser() -> argparse.ArgumentParser:
                    help="ignore due-state (for CI)")
     p.set_defaults(func=cmd_run_scheduled)
 
-    p = sub.add_parser("serve", help="run the hosted JSON API (localhost)")
-    p.add_argument("--port", default="8000")
-    p.add_argument("--history", default="./swapgate-runs.db")
-    p.add_argument("--key", default="")
-    p.set_defaults(func=cmd_serve)
-
     p = sub.add_parser("manifest", help="generate/check the MCP server manifest")
     p.add_argument("--out", default="mcp.json")
     p.add_argument("--check", action="store_true")
     p.set_defaults(func=cmd_manifest)
-
-    p = sub.add_parser("teams", help="manage team API keys")
-    teams_sub = p.add_subparsers(dest="teams_command", required=True)
-    c = teams_sub.add_parser("create", help="create a team and print its key once")
-    c.add_argument("name")
-    c.add_argument("--history", default="./swapgate-runs.db")
-    c.set_defaults(func=cmd_teams_create)
     return parser
 
 

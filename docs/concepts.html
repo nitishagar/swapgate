@@ -31,7 +31,6 @@ function toggleTheme() {
     <a href="concepts.html" aria-current="page">Concepts</a>
     <a href="cli.html">CLI</a>
     <a href="bharat-pack.html">Bharat pack</a>
-    <a href="hosting.html">Hosting</a>
   </nav>
   <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">theme</button>
 </header>
@@ -65,7 +64,7 @@ function toggleTheme() {
   <table>
     <tr><th>Judge</th><th>How it scores</th><th>When to use it</th></tr>
     <tr><td><code>deterministic</code></td><td>Every rubric check must pass; score is the fraction passed.</td><td>CI gates. Fast, explainable, reproducible.</td></tr>
-    <tr><td><code>typed</code></td><td>Deterministic signals mapped to pass / fail / needs-review with a probability.</td><td>Borderline triage; pluggable hosted backends later.</td></tr>
+    <tr><td><code>typed</code></td><td>Deterministic signals mapped to pass / fail / needs-review with a probability.</td><td>Borderline triage; pluggable backends later.</td></tr>
     <tr><td><code>llm</code></td><td>An OpenAI-compatible judge model returns one-line <code>PASS/FAIL</code> verdicts.</td><td>Rubrics humans can state but regex cannot check.</td></tr>
   </table>
 

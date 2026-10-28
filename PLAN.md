@@ -108,4 +108,6 @@ mono code (ui-monospace stack), light/dark toggle via `prefers-color-scheme` + l
 
 Day 90: <300 stars or <50 weekly installs → keep as sec-MCP feature, drop hosted plans.
 Day 180: <10 paying or <$200 MRR → kill hosted tier.
+(Cut early: the hosted API + teams + billing tier was removed — SwapGate is
+CLI + scheduler + MCP + SDK only.)
 If a major gateway ships a native equivalent before day 90 → pivot to integration plugin.

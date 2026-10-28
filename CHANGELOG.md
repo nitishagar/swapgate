@@ -12,6 +12,11 @@ SemVer. Release tagging is the maintainer's call.
   profile `india` → `bharat`, tags/metadata `pack:india-v0` →
   `pack:bharat-v0`, docs page `india-pack.html` → `bharat-pack.html`.
   No compatibility aliases; update scripts and bookmarks.
+- Hosted tier removed outright: `serve` + `teams` commands, `serve`/`teams`/
+  `billing` modules, `Dockerfile` + container-smoke CI, Hosting docs page,
+  `.[hosted]` extra (Stripe/Razorpay gone), and the teams/keys/webhook
+  tables + `team_id` column (schema back to v1; old DBs keep working,
+  extra tables ignored).
 
 ## [0.2.2] - 2026-10-28
 

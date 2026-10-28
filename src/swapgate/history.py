@@ -30,19 +30,6 @@ _MIGRATIONS = {
              claimed_at REAL NOT NULL, pid INTEGER NOT NULL,
              PRIMARY KEY (suite_path, baseline, candidate))""",
     ],
-    2: [
-        "ALTER TABLE runs ADD COLUMN team_id INTEGER",
-        """CREATE TABLE IF NOT EXISTS teams (
-             id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL,
-             created REAL NOT NULL)""",
-        """CREATE TABLE IF NOT EXISTS keys (
-             key_hash TEXT PRIMARY KEY, team_id INTEGER NOT NULL, created REAL NOT NULL,
-             revoked INTEGER NOT NULL DEFAULT 0)""",
-        """CREATE TABLE IF NOT EXISTS webhook_events (
-             provider TEXT NOT NULL, event_key TEXT NOT NULL, status TEXT NOT NULL,
-             received_at REAL NOT NULL, payload TEXT,
-             PRIMARY KEY (provider, event_key))""",
-    ],
 }
 
 
@@ -90,10 +77,10 @@ def append_run(path: str, run: dict[str, Any]) -> int:
         cursor = conn.execute(
             """INSERT INTO runs (ts, suite, baseline, candidate, judge, fail_under,
                max_regression, passed, baseline_pass_rate, candidate_pass_rate,
-               receipt, error, team_id)
+               receipt, error)
                VALUES (:ts, :suite, :baseline, :candidate, :judge, :fail_under,
                :max_regression, :passed, :baseline_pass_rate, :candidate_pass_rate,
-               :receipt, :error, :team_id)""",
+               :receipt, :error)""",
             {
                 "ts": time.time(),
                 "suite": run["suite"],
@@ -107,7 +94,6 @@ def append_run(path: str, run: dict[str, Any]) -> int:
                 "candidate_pass_rate": run.get("candidate_pass_rate"),
                 "receipt": json.dumps(run["receipt"], sort_keys=True) if run.get("receipt") else None,
                 "error": run.get("error"),
-                "team_id": run.get("team_id"),
             },
         )
         return int(cursor.lastrowid or 0)

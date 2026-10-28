@@ -20,7 +20,7 @@ __all__ = [
 
 
 def get_judge(name: str, fixtures_path: str = "") -> Judge:
-    """Shared judge factory (CLI, scheduler, hosted). Raises ValueError."""
+    """Shared judge factory (CLI, scheduler). Raises ValueError."""
     if name == "deterministic":
         return DeterministicJudge()
     if name == "typed":

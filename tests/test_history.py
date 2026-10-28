@@ -16,8 +16,8 @@ def _run(**over):
 
 def test_init_idempotent_and_versioned(tmp_path):
     db = str(tmp_path / "r.db")
-    assert init_db(db) == 2  # migrations 1 (runs/claims) + 2 (teams/keys/webhooks)
-    assert init_db(db) == 2
+    assert init_db(db) == 1  # single migration: runs + claims (no teams/webhooks)
+    assert init_db(db) == 1
     conn = sqlite3.connect(db)
     mode = conn.execute("PRAGMA journal_mode").fetchone()[0]
     conn.close()

@@ -2,8 +2,8 @@
 
 Verdict labels are constrained to pass | fail | needs_review with an explicit
 probability, so downstream gates can threshold on confidence. The local backend
-combines deterministic signals offline; hosted typed-decision backends
-(Jev, OpenAI Decisions) plug in behind the same protocol for live runs.
+combines deterministic signals offline; remote typed-decision backends
+plug in behind the same protocol for live runs.
 """
 
 from __future__ import annotations

@@ -16,7 +16,6 @@ from typing import Any
 
 RECEIPT_VERSION = 1
 DEFAULT_KEY_PATH = os.path.expanduser("~/.swapgate/key")
-DEFAULT_HOST_KEY_PATH = os.path.expanduser("~/.swapgate/host-key")
 
 
 def _normalize(value: Any) -> Any:
