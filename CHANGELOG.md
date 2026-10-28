@@ -3,6 +3,13 @@
 All notable changes to SwapGate. Format follows Keep a Changelog; versioning is
 SemVer. Release tagging is the maintainer's call.
 
+## [0.2.2] - 2026-10-28
+
+### Fixed
+
+- npm SDK `package.json` gains the `repository` field so sigstore
+  provenance attestation validates during trusted publishing.
+
 ## [0.2.1] - 2026-10-28
 
 ### Added

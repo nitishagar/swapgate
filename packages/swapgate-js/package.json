@@ -1,7 +1,11 @@
 {
   "name": "swapgate",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "SwapGate SDK: swap-receipt types and offline verification for Node.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nitishagar/swapgate.git"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
