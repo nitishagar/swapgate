@@ -1,6 +1,7 @@
 """P4: hosted API route tests (live localhost server, ephemeral port)."""
 
 import json
+import os
 import sqlite3
 import threading
 import urllib.error
@@ -167,6 +168,123 @@ def test_cli_teams_create_and_serve_bind_conflict(tmp_path, capsys):
         server.server_close()
         worker.join(timeout=5)
     assert code == EXIT_ERROR
+
+
+def test_compare_rejects_null_providers_and_string_metadata(hosted):
+    port, key = hosted["port"], hosted["key"]
+    bad_suite = _suite()
+    bad_suite["metadata"] = "approved"
+    for body in ({"suite": _suite(), "baseline": None},
+                 {"suite": _suite(), "candidate": None},
+                 {"suite": bad_suite}):
+        status, payload = _call(port, "POST", "/v1/compare", body, key=key)
+        assert status == 400, (body, status)
+        assert "error" in payload
+
+
+def test_compare_gate_fail_is_200_with_receipt(hosted):
+    status, payload = _call(hosted["port"], "POST", "/v1/compare",
+                            {"suite": _suite(), "baseline": "mock:parity",
+                             "candidate": "mock:regress", "fail_under": 0.5},
+                            key=hosted["key"])
+    assert status == 200
+    assert payload["receipt"]["summary"]["passed"] is False
+    rows = history.list_runs(hosted["db"])
+    assert len(rows) == 1 and not rows[0]["passed"]
+
+
+def test_hosted_never_forwards_operator_key(hosted, monkeypatch):
+    import socketserver
+    from http.server import BaseHTTPRequestHandler
+
+    seen = {}
+
+    class Capture(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.rfile.read(int(self.headers.get("Content-Length", "0")))
+            seen["auth"] = self.headers.get("Authorization")
+            body = json.dumps(
+                {"choices": [{"message": {"content": "captured"}}]}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    capture = socketserver.TCPServer(("127.0.0.1", 0), Capture)
+    worker = threading.Thread(target=capture.serve_forever, daemon=True)
+    worker.start()
+    try:
+        monkeypatch.setenv("SWAPGATE_API_KEY", "operator-secret-marker")
+        status, _ = _call(
+            hosted["port"], "POST", "/v1/compare",
+            {"suite": _suite(),
+             "baseline": f"openai-compat:http://127.0.0.1:{capture.server_address[1]}|m",
+             "candidate": "mock:parity"},
+            key=hosted["key"])
+    finally:
+        capture.shutdown()
+        capture.server_close()
+        worker.join(timeout=5)
+    assert status == 200
+    assert seen.get("auth") == "Bearer "
+    assert "operator-secret-marker" not in (seen.get("auth") or "")
+
+
+def test_serve_bad_port_exits_1(tmp_path):
+    db, key = str(tmp_path / "r.db"), str(tmp_path / "k")
+    assert main(["serve", "--port", "bogus", "--history", db,
+                 "--key", key]) == EXIT_ERROR
+    assert main(["serve", "--port", "99999", "--history", db,
+                 "--key", key]) == EXIT_ERROR
+
+
+def test_serve_startup_scan_refuses_live_secrets(tmp_path, monkeypatch):
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "sk_live_smoke")
+    db, key = tmp_path / "r.db", tmp_path / "k"
+    code = main(["serve", "--port", "8123", "--history", str(db),
+                 "--key", str(key)])
+    assert code == EXIT_ERROR
+    assert not os.path.exists(db) and not os.path.exists(key)
+
+
+@pytest.mark.skipif(os.name != "posix", reason="SIGTERM semantics are POSIX-only")
+def test_serve_sigterm_exits_zero(tmp_path):
+    import signal
+    import socket
+    import subprocess
+    import sys
+    import time
+
+    sock = socket.socket()
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "swapgate.cli", "serve", "--port", str(port),
+         "--history", str(tmp_path / "r.db"), "--key", str(tmp_path / "k")],
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    try:
+        deadline = time.time() + 15
+        while True:
+            try:
+                with socket.create_connection(("127.0.0.1", port), timeout=1):
+                    break
+            except OSError:
+                assert time.time() < deadline, "server never came up"
+                assert proc.poll() is None, proc.stdout.read() if proc.stdout else ""
+                time.sleep(0.1)
+        proc.send_signal(signal.SIGTERM)
+        assert proc.wait(timeout=15) == 0
+    finally:
+        if proc.stdout:
+            proc.stdout.close()
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait()
 
 
 def test_schema_v2_migrates_v1_db(tmp_path):

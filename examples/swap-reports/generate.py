@@ -30,6 +30,18 @@ human-approved, then replayed with `compare --baseline mock:parity
 --candidate mock:seed-3`. Mock providers prove gate mechanics only; this report
 makes no claims about any real model. Reproduce with
 `examples/swap-reports/generate.py`.
+
+## Live rerun (documented, not executed)
+
+To replay the same suite against live OpenAI-compatible endpoints instead of
+mocks, export `SWAPGATE_API_KEY` and replace the `compare` step with e.g.:
+
+    swapgate compare --suite s.json \\
+      --baseline "openai-compat:https://api.vendor-a.example/v1|model-a" \\
+      --candidate "openai-compat:https://api.vendor-b.example/v1|model-b" \\
+      --fail-under 0.8 --max-regression 0.1 --out r.json --report report.md
+
+No live run was performed for this report; the numbers below are mock-only.
 """
 
 

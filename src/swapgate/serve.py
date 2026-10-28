@@ -15,6 +15,9 @@ import hashlib
 import json
 import math
 import os
+import signal
+import sys
+import threading
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
@@ -24,7 +27,7 @@ from .compare import compare
 from .evals import EvalSuite
 from .judges import get_judge
 from .receipt import build_receipt_body, load_or_create_key, sign_receipt
-from .runner import parse_provider
+from .runner import OpenAICompatProvider, Provider, parse_provider
 
 MAX_BODY_BYTES = 1024 * 1024
 
@@ -39,6 +42,20 @@ class ApiError(Exception):
 def _valid_threshold(value: Any) -> bool:
     return (isinstance(value, (int, float)) and not isinstance(value, bool)
             and math.isfinite(value) and 0.0 <= value <= 1.0)
+
+
+def _hosted_provider(spec: Any) -> Provider:
+    """Parse a tenant-supplied provider without the operator's API key.
+
+    `openai-compat:<url>|<model>` accepts an arbitrary URL, so forwarding the
+    server-side `SWAPGATE_API_KEY` would let any team key harvest it (plus
+    credentialed SSRF). Hosted live providers run keyless; operators needing
+    authenticated live replays use the CLI or scheduler instead.
+    """
+    provider = parse_provider(spec)
+    if isinstance(provider, OpenAICompatProvider):
+        provider.api_key = ""
+    return provider
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -124,7 +141,7 @@ class Handler(BaseHTTPRequestHandler):
             raise ApiError(400, "bad_request", "need an inline suite object")
         try:
             suite = EvalSuite.from_dict(body["suite"])
-        except (TypeError, KeyError) as exc:
+        except (TypeError, KeyError, ValueError) as exc:
             raise ApiError(400, "bad_request", f"bad suite: {exc}")
         if not suite.metadata.get("approved"):
             raise ApiError(400, "unapproved_suite", "suite lacks metadata.approved")
@@ -137,8 +154,8 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError:
             raise ApiError(400, "bad_judge", f"unknown judge: {body.get('judge')}")
         try:
-            baseline = parse_provider(body.get("baseline", "mock:parity"))
-            candidate = parse_provider(body.get("candidate", "mock:parity"))
+            baseline = _hosted_provider(body.get("baseline", "mock:parity"))
+            candidate = _hosted_provider(body.get("candidate", "mock:parity"))
         except ValueError as exc:
             raise ApiError(400, "bad_provider", str(exc))
         try:
@@ -275,4 +292,10 @@ def create_server(port: int, history_path: str, key: bytes) -> ThreadingHTTPServ
 
 
 def serve_forever(port: int, history_path: str, key: bytes) -> None:
-    create_server(port, history_path, key).serve_forever()
+    if threading.current_thread() is threading.main_thread():
+        signal.signal(signal.SIGTERM, lambda _signum, _frame: sys.exit(0))
+    server = create_server(port, history_path, key)
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()

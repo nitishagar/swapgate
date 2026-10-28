@@ -116,6 +116,16 @@ def run_due(schedules_path: str, history_path: str, force: bool = False,
     for entry in entries:
         if not force and not entry_due(entry, now):
             continue
+        bad = [f for f in ("baseline", "candidate")
+               if not isinstance(entry.get(f, "mock:parity"), str)]
+        if not isinstance(entry.get("suite"), str):
+            bad = ["suite"] + bad
+        if bad:
+            # A NULL/non-string spec would fail the NOT NULL claim INSERT and
+            # look like single-flight contention; refuse loudly instead.
+            outcome["errors"].append(
+                f"bad schedules entry ({', '.join(bad)} must be strings)")
+            continue
         key = (entry["suite"], entry.get("baseline", "mock:parity"),
                entry.get("candidate", "mock:parity"))
         if not history.claim(history_path, *key, now=now):

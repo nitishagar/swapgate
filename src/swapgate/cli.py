@@ -161,18 +161,29 @@ def cmd_serve_mcp(args: argparse.Namespace) -> int:
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
-    from .receipt import DEFAULT_KEY_PATH
+    from . import billing
+    from .receipt import DEFAULT_HOST_KEY_PATH, load_or_create_key
     from .serve import serve_forever
 
     try:
         port = int(args.port)
-        key = load_or_create_key(args.key or DEFAULT_KEY_PATH)
-        print(f"serving on 127.0.0.1:{port} (history: {args.history})")
-        serve_forever(port, args.history, key)
     except ValueError:
         print(f"error: bad port: {args.port}", file=sys.stderr)
         return EXIT_ERROR
-    except OSError as exc:
+    try:
+        billing.check_test_mode({
+            "STRIPE_WEBHOOK_SECRET": os.environ.get("STRIPE_WEBHOOK_SECRET", ""),
+            "RAZORPAY_WEBHOOK_SECRET": os.environ.get("RAZORPAY_WEBHOOK_SECRET", ""),
+            "RAZORPAY_TEST_ACCOUNTS": os.environ.get("RAZORPAY_TEST_ACCOUNTS", ""),
+        })
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_ERROR
+    try:
+        key = load_or_create_key(args.key or DEFAULT_HOST_KEY_PATH)
+        print(f"serving on 127.0.0.1:{port} (history: {args.history})")
+        serve_forever(port, args.history, key)
+    except (OSError, OverflowError) as exc:
         print(f"error: cannot serve: {exc}", file=sys.stderr)
         return EXIT_ERROR
     except KeyboardInterrupt:
@@ -218,6 +229,8 @@ def cmd_run_scheduled(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    from .schedule import DEFAULT_SCHEDULES_PATH
+
     parser = argparse.ArgumentParser(prog="swapgate", description="Model-swap eval gate.")
     parser.add_argument("--version", action="version", version=f"swapgate {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -270,7 +283,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_serve_mcp)
 
     p = sub.add_parser("run-scheduled", help="run due scheduled comparisons")
-    p.add_argument("--schedules", default="./schedules.json")
+    p.add_argument("--schedules", default=DEFAULT_SCHEDULES_PATH)
     p.add_argument("--history", default="./swapgate-runs.db")
     p.add_argument("--force", action="store_true",
                    help="ignore due-state (for CI)")

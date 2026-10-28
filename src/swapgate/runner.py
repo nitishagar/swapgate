@@ -91,6 +91,8 @@ class OpenAICompatProvider:
 
 
 def parse_provider(spec: str) -> Provider:
+    if not isinstance(spec, str):
+        raise ValueError(f"bad provider spec (want a string): {spec!r}")
     if spec.startswith("mock:"):
         return MockProvider(spec[len("mock:"):])
     if spec.startswith("openai-compat:"):

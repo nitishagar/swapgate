@@ -179,3 +179,24 @@ def test_cli_exit_codes(tmp_path):
 
     assert main(["run-scheduled", "--schedules", str(tmp_path / "nope.json"),
                  "--history", db]) == EXIT_ERROR
+
+
+def test_null_provider_is_error_not_crash(tmp_path):
+    suite = _suite(str(tmp_path / "s.json"))
+    sched = _schedules(str(tmp_path / "sched.json"), [_entry(suite, baseline=None)])
+    db = str(tmp_path / "r.db")
+    outcome = run_due(sched, db, now=10000.0)
+    assert outcome["exit_code"] == 1
+    assert len(outcome["errors"]) == 1
+    assert "bad schedules entry" in outcome["errors"][0]
+    assert history.list_runs(db) == []
+
+
+def test_claim_released_after_entry_error(tmp_path):
+    suite = _suite(str(tmp_path / "u.json"), approved=False)
+    sched = _schedules(str(tmp_path / "sched.json"), [_entry(suite)])
+    db = str(tmp_path / "r.db")
+    outcome = run_due(sched, db, now=10000.0)
+    assert outcome["exit_code"] == 1
+    assert outcome["errors"]
+    assert history.claim(db, suite, "mock:parity", "mock:parity", now=10001.0)

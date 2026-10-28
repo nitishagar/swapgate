@@ -50,6 +50,11 @@ docker run -d -p 8000:8000 -v sg-data:/data \
   -e STRIPE_WEBHOOK_SECRET=whsec_... \
   -e RAZORPAY_WEBHOOK_SECRET=... -e RAZORPAY_TEST_ACCOUNTS=acc_... \
   swapgate</pre>
+  <p>Receipts are signed with the server key (default
+  <code>~/.swapgate/host-key</code>, override with <code>--key</code>). Key
+  rotation is replace + restart: swap the key file and restart
+  <code>serve</code>; previously issued receipts verify against the old
+  key.</p>
 
   <h2>API</h2>
   <table>
