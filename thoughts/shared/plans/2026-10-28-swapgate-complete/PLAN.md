@@ -138,8 +138,8 @@ Remove dead `finalize_pending` import (lib helper stays for API users).
 #### Release — `CHANGELOG.md` (new, Keep-a-Changelog format), version `0.2.0`
 Changelog for all phases; bump. Tagging left to the user.
 ### Success Criteria
-- [ ] Local: `python -m pytest -q tests/test_runner.py tests/test_cli.py tests/test_mcp.py` → pass incl. the 4 new pin tests · a miss localizes to: the pin's single behavior by test name.
-- [x] End-to-end: full `python -m pytest -q` → `148 passed, 1 skipped` + `npm test` → `7 passed`; goldens clean · observed 2026-10-28.
+- [x] Local: `python -m pytest -q tests/test_runner.py tests/test_cli.py tests/test_mcp.py` → pass incl. the 4 new pin tests · a miss localizes to: the pin's single behavior by test name. ✓ 4 passed by name + file runs green 2026-10-28.
+- [x] End-to-end: full `python -m pytest -q` → `148 passed, 1 skipped` + `npm test` → `7 passed`; goldens clean · observed 2026-10-28. P7 re-run: `152 passed, 1 skipped` + `7 passed` + GOLDENS-CLEAN (count grew by the 4 pin tests).
 - [ ] Manual: read the CHANGELOG diff for accuracy before handoff.
 
 ## Testing Strategy

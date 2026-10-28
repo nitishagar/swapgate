@@ -1,6 +1,6 @@
 {
   "name": "swapgate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SwapGate SDK: swap-receipt types and offline verification for Node.",
   "type": "module",
   "main": "dist/index.js",

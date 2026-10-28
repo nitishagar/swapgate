@@ -17,7 +17,6 @@ from .evals import (
     ApprovalRequiredError,
     approval_stamp,
     build_suite,
-    finalize_pending,
     load_suite,
     pending_path_for,
     save_suite,

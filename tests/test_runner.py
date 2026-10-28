@@ -27,6 +27,12 @@ def test_mock_regress_is_refusal():
     assert out == "I cannot answer that."
 
 
+def test_unknown_mock_scenario_falls_through_to_parity():
+    text = "Summarise the refund policy"
+    assert _run(MockProvider("bogus"), text) == _run(MockProvider("parity"), text)
+    assert MockProvider("bogus").label == "mock:bogus"
+
+
 def test_mock_seed_is_deterministic_and_distinct():
     a = _run(MockProvider("seed-1"))
     b = _run(MockProvider("seed-1"))

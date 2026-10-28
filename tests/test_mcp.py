@@ -49,6 +49,17 @@ def test_compare_models_parity(tmp_path):
     assert payload["content_hash"]
 
 
+def test_compare_models_unsigned_shape(tmp_path):
+    resp = handle_request({"jsonrpc": "2.0", "id": 7, "method": "tools/call",
+                           "params": {"name": "compare_models",
+                                      "arguments": {"suite": _suite_file(tmp_path),
+                                                    "baseline": "mock:parity",
+                                                    "candidate": "mock:parity"}}})
+    payload = json.loads(resp["result"]["content"][0]["text"])
+    assert payload["content_hash"]
+    assert "signature" not in payload and "signature_scheme" not in payload
+
+
 def test_unknown_tool_and_method():
     resp = handle_request({"jsonrpc": "2.0", "id": 5, "method": "tools/call",
                            "params": {"name": "teleport", "arguments": {}}})

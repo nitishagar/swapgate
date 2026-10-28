@@ -149,6 +149,32 @@ def test_report_renders_fence_breaking_receipt(tmp_path):
     assert "´´´" in text
 
 
+def test_parser_exception_aborts_run_without_output(tmp_path):
+    import subprocess
+    import sys
+
+    bad = str(tmp_path / "bad.jsonl")
+    with open(bad, "w", encoding="utf-8") as fh:
+        fh.write('{"messages": [{"role": "user", "content": "hi"}], "usage": 5}\n')
+    out = str(tmp_path / "o.jsonl")
+    proc = subprocess.run([sys.executable, "-m", "swapgate.cli", "capture",
+                           "--from", "litellm", "--in", bad, "--out", out],
+                          capture_output=True, text=True, check=False)
+    assert proc.returncode != 0
+    assert not os.path.exists(out)
+
+
+def test_compare_unsigned_shape(tmp_path):
+    suite = _suite_for_compare(tmp_path)
+    receipt = str(tmp_path / "u.json")
+    assert main(["compare", "--suite", suite, "--baseline", "mock:parity",
+                 "--candidate", "mock:parity", "--out", receipt]) == EXIT_OK
+    with open(receipt, encoding="utf-8") as fh:
+        data = json.load(fh)
+    assert data["signature_scheme"] == "none"
+    assert data["content_hash"] == "" and data["signature"] == ""
+
+
 def test_missing_input_is_error(tmp_path):
     assert main(["capture", "--from", "litellm", "--in", str(tmp_path / "nope.jsonl"),
                  "--out", str(tmp_path / "o.jsonl")]) != EXIT_OK

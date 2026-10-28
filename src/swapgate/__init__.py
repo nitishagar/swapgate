@@ -1,3 +1,3 @@
 """SwapGate: model-swap eval gate. Traces in, swap receipts out."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

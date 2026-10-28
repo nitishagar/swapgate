@@ -1,6 +1,6 @@
 [project]
 name = "swapgate"
-version = "0.1.0"
+version = "0.2.0"
 description = "Open-source model-swap eval gate: production traces become evals, candidate models must pass before you swap."
 readme = "README.md"
 requires-python = ">=3.10"
