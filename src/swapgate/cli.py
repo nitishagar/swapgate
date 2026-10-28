@@ -88,8 +88,8 @@ def cmd_build_evals(args: argparse.Namespace) -> int:
             completer = ProviderCompleter(parse_provider(f"openai-compat:{base}|{model}"))
     suite = build_suite(args.name, events, max_clusters=args.clusters,
                         rubric_source=args.rubrics, rubric_completer=completer)
-    if args.india_pack:
-        from .india import apply_pack
+    if args.bharat_pack:
+        from .bharat import apply_pack
         suite = apply_pack(suite)
     pending = pending_path_for(args.output)
     save_suite(suite, pending)
@@ -239,7 +239,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--from", dest="source", choices=["litellm", "otel", "secmcp"], required=True)
     p.add_argument("--in", dest="input", required=True)
     p.add_argument("--out", dest="output", required=True)
-    p.add_argument("--redact", choices=["default", "india", "dpdp-strict"], default="")
+    p.add_argument("--redact", choices=["default", "bharat", "dpdp-strict"], default="")
     p.set_defaults(func=cmd_capture)
 
     p = sub.add_parser("build-evals", help="cluster events into an eval suite (approval-gated)")
@@ -248,7 +248,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", dest="output", required=True)
     p.add_argument("--name", default="suite")
     p.add_argument("--clusters", type=int, default=8)
-    p.add_argument("--india-pack", action="store_true")
+    p.add_argument("--bharat-pack", action="store_true")
     p.add_argument("--rubrics", choices=["heuristic", "llm"], default="heuristic")
     p.add_argument("--rubrics-fixtures", default="")
     p.add_argument("--approve", action="store_true")

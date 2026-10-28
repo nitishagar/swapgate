@@ -15,8 +15,8 @@ def test_default_profile_redacts_email_and_key():
     assert out.endswith("done")
 
 
-def test_india_profile_redacts_pan_upi_phone():
-    r = Redactor("india")
+def test_bharat_profile_redacts_pan_upi_phone():
+    r = Redactor("bharat")
     out = r.redact_text("PAN ABCDE1234F UPI priya@okhdfc phone +91 98765 43210")
     assert "ABCDE1234F" not in out
     assert "priya@okhdfc" not in out
@@ -31,13 +31,13 @@ def test_dpdp_strict_redacts_aadhaar():
     assert "<AADHAAR_" in out
 
 
-def test_default_profile_leaves_india_ids():
+def test_default_profile_leaves_bharat_ids():
     r = Redactor("default")
     assert "ABCDE1234F" in r.redact_text("PAN ABCDE1234F")
 
 
 def test_pseudonyms_are_deterministic():
-    r = Redactor("india")
+    r = Redactor("bharat")
     assert r.redact_text("a@b.co") == r.redact_text("a@b.co")
 
 

@@ -1,7 +1,7 @@
-"""India pack v0: Hinglish eval templates, DPDP profiles, FREE-AI report mapping.
+"""Bharat pack v0: Hinglish eval templates, DPDP profiles, FREE-AI report mapping.
 
 - Hinglish/Indic support prompt templates for building locale suites.
-- DPDP-aware redaction: the `india` and `dpdp-strict` profiles in redact.py
+- DPDP-aware redaction: the `bharat` and `dpdp-strict` profiles in redact.py
   (PAN, Aadhaar, UPI ids, +91 phones) plus a 30-day retention recommendation.
 - FREE-AI mapping: receipt summary fields mapped onto the RBI FREE-AI
   governance/assurance language for fintech audit packets.
@@ -22,7 +22,7 @@ HINGLISH_TEMPLATES = [
 DPDP_RETENTION_DAYS = 30
 DPDP_NOTE = (
     "DPDP Act 2023: traces are personal data. Minimise collection, pseudonymise "
-    "before storage (redact profile 'india' or 'dpdp-strict'), retain at most "
+    "before storage (redact profile 'bharat' or 'dpdp-strict'), retain at most "
     f"{DPDP_RETENTION_DAYS} days, delete on request. Full duties from 13 May 2027."
 )
 
@@ -39,11 +39,11 @@ FREE_AI_MAPPING = {
 
 
 def apply_pack(suite: Any) -> Any:
-    """Tag every case with the India pack marker (idempotent)."""
+    """Tag every case with the Bharat pack marker (idempotent)."""
     for case in suite.cases:
-        if "pack:india-v0" not in case.tags:
-            case.tags.append("pack:india-v0")
-    suite.metadata["pack"] = "india-v0"
+        if "pack:bharat-v0" not in case.tags:
+            case.tags.append("pack:bharat-v0")
+    suite.metadata["pack"] = "bharat-v0"
     suite.metadata["dpdp_note"] = DPDP_NOTE
     return suite
 

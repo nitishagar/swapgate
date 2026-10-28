@@ -8,9 +8,9 @@ the same commands run against real endpoints.
 
 ```bash
 swapgate capture --from litellm --in ../../fixtures/traces-litellm.jsonl \
-  --out /tmp/sg-events.jsonl --redact india
+  --out /tmp/sg-events.jsonl --redact bharat
 swapgate build-evals --in /tmp/sg-events.jsonl --out suite.json \
-  --name indic-support --india-pack
+  --name indic-support --bharat-pack
 # review suite.pending.json, then:
 swapgate build-evals --out suite.json --approve
 swapgate compare --suite suite.json \

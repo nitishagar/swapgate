@@ -44,7 +44,7 @@ swapgate verify --receipt /tmp/receipt.json --key /tmp/demo.key  # if signed wit
 | Command | Purpose |
 |---|---|
 | `capture --from litellm\|otel\|secmcp --in --out [--redact profile]` | Ingest raw traces |
-| `build-evals --in --out [--name] [--clusters] [--india-pack] [--approve]` | Cluster → suite (approval-gated) |
+| `build-evals --in --out [--name] [--clusters] [--bharat-pack] [--approve]` | Cluster → suite (approval-gated) |
 | `compare --suite --baseline --candidate [--judge] [--fail-under] [--max-regression] [--out] [--report] [--key/--sign]` | Replay + gate (exit 2 on regression) |
 | `report --receipt --format md\|html [--out]` | Render a receipt |
 | `verify --receipt --key` | Verify a signed receipt |
@@ -69,7 +69,7 @@ Providers: `mock:parity|regress|seed-N` (offline), `openai-compat:<base-url>|<mo
 
 Every gate runs offline in CI (`pytest`, no keys/network):
 
-- **G0 unit** — ingest ×3, redact, cluster, evals, judges ×3, compare, receipt, report, India pack
+- **G0 unit** — ingest ×3, redact, cluster, evals, judges ×3, compare, receipt, report, Bharat pack
 - **G1 CLI end-to-end** — capture→build-evals→compare on fixtures, golden receipt
 - **G2 regression behaviour** — injected regression fails (exit 2), parity passes (exit 0)
 - **G3 judge reliability** — deterministic fixtures + recorded LLM-judge fixtures
@@ -81,11 +81,11 @@ Every gate runs offline in CI (`pytest`, no keys/network):
 pytest            # G0–G5 offline
 ```
 
-## India pack (`--india-pack`)
+## Bharat pack (`--bharat-pack`)
 
-Hinglish eval templates, DPDP redaction profiles (`india`, `dpdp-strict`: PAN,
+Hinglish eval templates, DPDP redaction profiles (`bharat`, `dpdp-strict`: PAN,
 Aadhaar, UPI, +91 phones), 30-day retention guidance, and a FREE-AI control
-annex for fintech audit packets. See `docs/india-pack.html`.
+annex for fintech audit packets. See `docs/bharat-pack.html`.
 
 ## Layout
 

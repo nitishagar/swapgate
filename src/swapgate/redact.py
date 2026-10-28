@@ -29,7 +29,7 @@ _PATTERNS: dict[str, list[str]] = {
 
 PROFILES: dict[str, list[str]] = {
     "default": ["EMAIL", "PHONE_GENERIC", "API_KEY", "IP"],
-    "india": ["EMAIL", "PHONE_IN", "PAN", "AADHAAR", "UPI", "API_KEY", "IP"],
+    "bharat": ["EMAIL", "PHONE_IN", "PAN", "AADHAAR", "UPI", "API_KEY", "IP"],
     "dpdp-strict": ["EMAIL", "PHONE_IN", "PHONE_GENERIC", "PAN", "AADHAAR", "UPI", "API_KEY", "IP"],
 }
 

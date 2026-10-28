@@ -27,7 +27,7 @@ def test_capture_litellm_counts(tmp_path, capsys):
 
 
 def test_capture_redacts_pii(tmp_path):
-    events = _capture(tmp_path, redact="india")
+    events = _capture(tmp_path, redact="bharat")
     blob = json.dumps(events)
     assert "priya@example.com" not in blob
     assert "ABCDE1234F" not in blob

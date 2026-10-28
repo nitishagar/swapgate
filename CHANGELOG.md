@@ -3,6 +3,16 @@
 All notable changes to SwapGate. Format follows Keep a Changelog; versioning is
 SemVer. Release tagging is the maintainer's call.
 
+## [Unreleased]
+
+### Changed (breaking)
+
+- India pack renamed to Bharat pack: module `swapgate.india` →
+  `swapgate.bharat`, flag `--india-pack` → `--bharat-pack`, redaction
+  profile `india` → `bharat`, tags/metadata `pack:india-v0` →
+  `pack:bharat-v0`, docs page `india-pack.html` → `bharat-pack.html`.
+  No compatibility aliases; update scripts and bookmarks.
+
 ## [0.2.2] - 2026-10-28
 
 ### Fixed

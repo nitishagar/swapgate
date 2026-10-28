@@ -6,7 +6,7 @@ Apache-2.0. Zero-dependency Python core (stdlib only), thin TS SDK, GitHub Actio
 Source analysis: YC Winter 2027 RFS feasibility doc (S1 "SwapGate", score 51/60, GO).
 MVP slice: doc's 0–8 week narrow MVP — CLI (`capture`, `build-evals`, `compare`),
 LiteLLM + sec-MCP ingestors, pluggable judges, Markdown/HTML report + decision-receipt JSON,
-GitHub Action failing the PR on regression, India pack v0.
+GitHub Action failing the PR on regression, Bharat pack v0.
 
 ## 1. Repo layout
 
@@ -35,7 +35,7 @@ swapgate/
     receipt.py                   # decision-receipt JSON, sha256 chain + HMAC-SHA256 signature
     report.py                    # Markdown + HTML report render
     mcp_server.py                # stdio JSON-RPC MCP server: compare_models, list_evals
-    india.py                     # India pack: Hinglish templates, DPDP profiles, FREE-AI mapping
+    india.py                     # Bharat pack: Hinglish templates, DPDP profiles, FREE-AI mapping
   tests/                         # pytest, offline, no keys/network (see §3 gates)
   fixtures/                      # sample traces (litellm/otel/secmcp), suites, judge fixtures
   examples/
@@ -65,7 +65,7 @@ swapgate/
 
 | Gate | What passes | How verified |
 |---|---|---|
-| G0 unit | every module: ingest×3, redact, cluster, evals, judges×3, compare, receipt, report, india | `pytest` full suite, no network/keys |
+| G0 unit | every module: ingest×3, redact, cluster, evals, judges×3, compare, receipt, report, bharat | `pytest` full suite, no network/keys |
 | G1 CLI e2e | `capture`→`build-evals`→`compare` on fixtures w/ mock provider; golden receipt+report byte-stable apart from timestamps | `pytest tests/test_cli_*.py` + `tests/test_golden.py` |
 | G2 regression behaviour | injected candidate regression fails `compare` (exit 2) and Action; parity passes (exit 0) | `pytest tests/test_compare.py::test_regression*`, Action self-test job in CI w/ mock |
 | G3 judge reliability | deterministic judges on fixtures; LLM-judge against recorded fixtures (no live calls) | `pytest tests/test_judges_*.py` |
@@ -92,7 +92,7 @@ Providers: `mock:<scenario>` (parity|regress|seed-N, deterministic offline),
 
 ## 5. Docs site (GitHub Pages, pi.dev-like)
 
-Static `docs/`: `index.html`, `quickstart.html`, `cli.html`, `concepts.html`, `india-pack.html`,
+Static `docs/`: `index.html`, `quickstart.html`, `cli.html`, `concepts.html`, `bharat-pack.html`,
 `style.css`, no build step, no external assets. Theme from pi.dev tokens:
 warm dark canvas `#161d27`/`#0d1116`, parchment text `#dacbc2`/`#ebe7e4`,
 terracotta accent `#b86b52`, serif display (Georgia stack — no licensed fonts),

@@ -1,7 +1,7 @@
-"""G0: India pack tests."""
+"""G0: Bharat pack tests."""
 
 from swapgate.evals import EvalCase, EvalSuite
-from swapgate.india import (
+from swapgate.bharat import (
     DPDP_NOTE,
     HINGLISH_TEMPLATES,
     apply_pack,
@@ -19,11 +19,11 @@ def test_hinglish_templates_render():
 def test_apply_pack_tags_and_marks_metadata():
     suite = EvalSuite(name="in", cases=[EvalCase(id="a", input=[])])
     apply_pack(suite)
-    assert suite.cases[0].tags == ["pack:india-v0"]
-    assert suite.metadata["pack"] == "india-v0"
+    assert suite.cases[0].tags == ["pack:bharat-v0"]
+    assert suite.metadata["pack"] == "bharat-v0"
     assert "13 May 2027" in suite.metadata["dpdp_note"]
     apply_pack(suite)  # idempotent
-    assert suite.cases[0].tags == ["pack:india-v0"]
+    assert suite.cases[0].tags == ["pack:bharat-v0"]
 
 
 def test_dpdp_note_mentions_controls():

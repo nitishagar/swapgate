@@ -30,7 +30,7 @@ function toggleTheme() {
     <a href="quickstart.html">Quickstart</a>
     <a href="concepts.html">Concepts</a>
     <a href="cli.html" aria-current="page">CLI</a>
-    <a href="india-pack.html">India pack</a>
+    <a href="bharat-pack.html">Bharat pack</a>
     <a href="hosting.html">Hosting</a>
   </nav>
   <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">theme</button>
@@ -41,14 +41,14 @@ function toggleTheme() {
   <h2>capture</h2>
   <pre>swapgate capture --from litellm|otel|secmcp --in traces.jsonl --out events.jsonl [--redact profile]</pre>
   <p>Ingests raw traces into canonical events. <code>--redact</code> takes
-  <code>default</code>, <code>india</code>, or <code>dpdp-strict</code>. Corrupt lines are
+  <code>default</code>, <code>bharat</code>, or <code>dpdp-strict</code>. Corrupt lines are
   counted and skipped, never fatal.</p>
 
   <h2>build-evals</h2>
-  <pre>swapgate build-evals --in events.jsonl --out suite.json [--name NAME] [--clusters K] [--india-pack]
+  <pre>swapgate build-evals --in events.jsonl --out suite.json [--name NAME] [--clusters K] [--bharat-pack]
 swapgate build-evals --out suite.json --approve</pre>
   <p>First run writes <code>suite.pending.json</code> for human review; <code>--approve</code>
-  finalises it. <code>--india-pack</code> tags every case and attaches the DPDP note.</p>
+  finalises it. <code>--bharat-pack</code> tags every case and attaches the DPDP note.</p>
 
   <h2>compare</h2>
   <pre>swapgate compare --suite suite.json --baseline SPEC --candidate SPEC
