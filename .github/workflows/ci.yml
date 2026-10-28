@@ -107,6 +107,54 @@ jobs:
           test "${{ steps.gate.outputs.passed }}" = "false"
           test -f swapgate-receipt.json
 
+  container-smoke:
+    name: Container smoke (hosted API)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t swapgate:test .
+      - name: Exercise the hosted API
+        run: |
+          docker run -d --name sg -p 8000:8000 \
+            -e STRIPE_WEBHOOK_SECRET=whsec_smoke -e RAZORPAY_WEBHOOK_SECRET=rzpay_smoke \
+            -e RAZORPAY_TEST_ACCOUNTS=acc_test1 swapgate:test
+          sleep 6
+          KEY=$(docker exec sg swapgate teams create smoke --history /data/runs.db)
+          test ${#KEY} -gt 20
+          cat > /tmp/suite.json <<'EOF'
+          {"suite": {"name": "smoke", "version": "0.1.0", "metadata": {"approved": {"by": "human", "at": "t"}},
+           "cases": [{"id": "s1", "input": [{"role": "user", "content": "Summarise the refund policy"}],
+           "rubric": [{"type": "contains", "values": ["refund", "policy"]}], "expected": "", "tags": [], "source_trace_ids": []}]},
+           "baseline": "mock:parity", "candidate": "mock:parity"}
+          EOF
+          curl -sf -X POST localhost:8000/v1/compare -H "Authorization: Bearer $KEY" \
+            -H 'Content-Type: application/json' -d @/tmp/suite.json -o /tmp/receipt.json
+          python3 -c "import json; r=json.load(open('/tmp/receipt.json')); assert r['receipt']['summary']['passed'] is True"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8000/v1/compare \
+            -H 'Content-Type: application/json' -d @/tmp/suite.json)" = "401"
+          python3 - <<'EOF'
+          import hashlib, hmac, json, time, urllib.request, urllib.error
+          def post(path, raw, headers):
+              req = urllib.request.Request(f"http://localhost:8000{path}", data=raw, method="POST", headers=headers)
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      return resp.status
+              except urllib.error.HTTPError as e:
+                  return e.code
+          payload = json.dumps({"id": "evt_smoke", "type": "t", "livemode": False}).encode()
+          ts = str(int(time.time()))
+          sig = hmac.new(b"whsec_smoke", f"{ts}.".encode() + payload, hashlib.sha256).hexdigest()
+          assert post("/v1/billing/stripe/webhook", payload, {"Stripe-Signature": f"t={ts},v1={sig}"}) == 200
+          assert post("/v1/billing/stripe/webhook", payload, {"Stripe-Signature": "t=1,v1=dead"}) == 400
+          body = json.dumps({"event": "payment.captured", "account_id": "acc_test1",
+                             "payload": {"payment": {"entity": {"id": "pay_smoke"}}}}).encode()
+          sig2 = hmac.new(b"rzpay_smoke", body, hashlib.sha256).hexdigest()
+          assert post("/v1/billing/razorpay/webhook", body, {"X-Razorpay-Signature": sig2}) == 200
+          assert post("/v1/billing/razorpay/webhook", body, {"X-Razorpay-Signature": "dead"}) == 400
+          print("webhooks ok")
+          EOF
+          docker stop sg >/dev/null
+
   scheduled-selftest:
     name: Scheduled self-test (run-scheduled)
     runs-on: ubuntu-latest

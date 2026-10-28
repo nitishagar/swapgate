@@ -161,6 +161,38 @@ def cmd_serve_mcp(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_serve(args: argparse.Namespace) -> int:
+    from .receipt import DEFAULT_KEY_PATH
+    from .serve import serve_forever
+
+    try:
+        port = int(args.port)
+        key = load_or_create_key(args.key or DEFAULT_KEY_PATH)
+        print(f"serving on 127.0.0.1:{port} (history: {args.history})")
+        serve_forever(port, args.history, key)
+    except ValueError:
+        print(f"error: bad port: {args.port}", file=sys.stderr)
+        return EXIT_ERROR
+    except OSError as exc:
+        print(f"error: cannot serve: {exc}", file=sys.stderr)
+        return EXIT_ERROR
+    except KeyboardInterrupt:
+        print("stopped")
+    return EXIT_OK
+
+
+def cmd_teams_create(args: argparse.Namespace) -> int:
+    from . import teams
+
+    try:
+        team_id = teams.create_team(args.history, args.name)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_ERROR
+    print(teams.issue_key(args.history, team_id))
+    return EXIT_OK
+
+
 def cmd_run_scheduled(args: argparse.Namespace) -> int:
     from .schedule import run_due
 
@@ -232,6 +264,19 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true",
                    help="ignore due-state (for CI)")
     p.set_defaults(func=cmd_run_scheduled)
+
+    p = sub.add_parser("serve", help="run the hosted JSON API (localhost)")
+    p.add_argument("--port", default="8000")
+    p.add_argument("--history", default="./swapgate-runs.db")
+    p.add_argument("--key", default="")
+    p.set_defaults(func=cmd_serve)
+
+    p = sub.add_parser("teams", help="manage team API keys")
+    teams_sub = p.add_subparsers(dest="teams_command", required=True)
+    c = teams_sub.add_parser("create", help="create a team and print its key once")
+    c.add_argument("name")
+    c.add_argument("--history", default="./swapgate-runs.db")
+    c.set_defaults(func=cmd_teams_create)
     return parser
 
 

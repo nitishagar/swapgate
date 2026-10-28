@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-storage-key="swapgate:theme">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hosting — SwapGate</title>
+<meta name="description" content="Run SwapGate as a single-instance hosted API with teams and test-mode billing.">
+<link rel="stylesheet" href="style.css">
+<script>
+(() => {
+  const key = "swapgate:theme";
+  const stored = localStorage.getItem(key);
+  document.documentElement.dataset.theme = stored === "light" || stored === "dark"
+    ? stored : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+})();
+function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.dataset.theme === "light" ? "dark" : "light";
+  root.dataset.theme = next;
+  localStorage.setItem("swapgate:theme", next);
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+  <a class="brand" href="index.html">Swap<b>Gate</b></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="concepts.html">Concepts</a>
+    <a href="cli.html">CLI</a>
+    <a href="india-pack.html">India pack</a>
+    <a href="hosting.html" aria-current="page">Hosting</a>
+  </nav>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">theme</button>
+</header>
+<main>
+  <h1>Hosting</h1>
+  <p>Single-instance hosted API: team API keys, run history, and test-mode
+  billing webhooks. SQLite-backed; Postgres and multi-instance are out of scope.</p>
+
+  <h2>Run it</h2>
+  <pre>pip install 'swapgate[hosted]'
+swapgate teams create acme --history runs.db   # prints the key ONCE
+swapgate serve --port 8000 --history runs.db</pre>
+  <p>Or with Docker (SQLite volume at <code>/data</code>):</p>
+  <pre>docker build -t swapgate .
+docker run -d -p 8000:8000 -v sg-data:/data \
+  -e STRIPE_WEBHOOK_SECRET=whsec_... \
+  -e RAZORPAY_WEBHOOK_SECRET=... -e RAZORPAY_TEST_ACCOUNTS=acc_... \
+  swapgate</pre>
+
+  <h2>API</h2>
+  <table>
+    <tr><th>Route</th><th>Auth</th><th>Notes</th></tr>
+    <tr><td><code>POST /v1/compare</code></td><td>Bearer key</td><td>Inline approved suite; gate fail is 200 with <code>passed:false</code>.</td></tr>
+    <tr><td><code>GET /v1/runs</code></td><td>Bearer key</td><td>Caller's team rows only.</td></tr>
+    <tr><td><code>GET /v1/runs/:id</code></td><td>Bearer key</td><td>Foreign ids return 404.</td></tr>
+    <tr><td><code>GET /v1/receipts/:id</code></td><td>Bearer key</td><td>Signed receipt JSON.</td></tr>
+    <tr><td><code>POST /v1/billing/*/webhook</code></td><td>SDK signature</td><td>Test-mode only; record-only ledger.</td></tr>
+  </table>
+
+  <h2>Billing containment</h2>
+  <p>Webhooks verify with the real provider SDKs. Stripe events must carry
+  <code>livemode:false</code>; Razorpay accounts must be allowlisted; any
+  live-shaped credential refuses to start. There is no charge-creating code path.</p>
+</main>
+<footer class="site">
+  SwapGate is Apache-2.0 open source.
+</footer>
+</div>
+</body>
+</html>
