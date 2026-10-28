@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nitishagar/swapgate/schemas/secmcp-log-v1.json",
+  "title": "sec-MCP tool-call log, version 1",
+  "description": "Normative contract for sec-MCP v1 log lines consumed by `swapgate capture --from secmcp`.",
+  "type": "object",
+  "required": ["v", "tool"],
+  "properties": {
+    "v": {"const": 1},
+    "id": {"type": "string"},
+    "ts": {"type": "string"},
+    "session": {"type": "string"},
+    "tool": {"type": "string"},
+    "args": {"type": "object"},
+    "result": {"type": "string"},
+    "latency_ms": {"type": "number"},
+    "policy_decision": {
+      "type": "object",
+      "required": ["action"],
+      "properties": {
+        "action": {"enum": ["allow", "deny"]},
+        "probability": {"type": "number"}
+      }
+    },
+    "llm": {
+      "type": "object",
+      "properties": {
+        "model": {"type": "string"},
+        "messages": {"type": "array"},
+        "output": {"type": "string"}
+      }
+    }
+  }
+}

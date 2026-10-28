@@ -110,9 +110,9 @@ Reference producer: `TraceEvent` (+ tool/decision/latency args) → v1 JSONL lin
 #### Tests — `tests/test_secmcp_contract.py` + `tests/e2e/test_secmcp_roundtrip.py` (new)
 Schema conformance; e2e file runs emit→`[sys.executable, "-m", "swapgate.cli"] capture --from secmcp`→`build-evals`→`--approve`→`compare --key`→`verify` via subprocess; deny preserved end to end; `tests/test_docs.py` re-run for the `concepts.html` edit.
 ### Success Criteria
-- [ ] Local: `python -m pytest -q tests/test_secmcp_contract.py tests/e2e/test_secmcp_roundtrip.py tests/test_docs.py` → pass incl. deny preservation · a miss localizes to: schema/validator vs emitter (ingestor faults would also fail `test_ingest.py`).
-- [ ] End-to-end: full `python -m pytest -q` green (re-runs goldens + interop, not just sec-MCP files) · confirms the contract is live, not paper.
-- [ ] Manual: none.
+- [x] Local: `python -m pytest -q tests/test_secmcp_contract.py tests/e2e/test_secmcp_roundtrip.py tests/test_docs.py` → `11 passed` incl. deny preservation · observed 2026-10-28.
+- [x] End-to-end: full `python -m pytest -q` → `144 passed, 1 skipped`; goldens clean · observed 2026-10-28.
+- [x] Manual: none · N/A.
 
 ## Phase 6: Distribution (manifests, publish, first report)
 ### Changes

@@ -46,6 +46,14 @@ function toggleTheme() {
   profiles (<code>default</code>, <code>india</code>, <code>dpdp-strict</code>) replace
   PII with deterministic pseudonyms so clustering stays stable.</p>
 
+  <h2>sec-MCP contract</h2>
+  <p>sec-MCP tool-call logs follow the versioned
+  <code>schemas/secmcp-log-v1.json</code> contract: <code>v</code>, <code>tool</code>,
+  arguments, an <code>allow|deny</code> policy decision with probability, latency,
+  and an optional LLM block. <code>swapgate capture --from secmcp</code> consumes
+  exactly this shape; tool-only records become eval inputs with the decision
+  preserved on the event.</p>
+
   <h2>Evals out</h2>
   <p>Events cluster offline by template signature plus shingle similarity — no embeddings,
   no network. Each cluster yields eval cases with heuristic rubrics
