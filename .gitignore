@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+*.pending.json
+swapgate.key
+.DS_Store
+node_modules/
+packages/swapgate-js/dist/

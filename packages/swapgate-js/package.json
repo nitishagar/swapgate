@@ -1,0 +1,22 @@
+{
+  "name": "swapgate",
+  "version": "0.1.0",
+  "description": "SwapGate SDK: swap-receipt types and offline verification for Node.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

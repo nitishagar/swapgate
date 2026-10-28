@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python-gates:
+    name: G0-G5 pytest (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[dev]'
+      - run: python -m pytest -q
+
+  ts-sdk:
+    name: TS SDK tests + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/swapgate-js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: packages/swapgate-js/package-lock.json
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+
+  packaging:
+    name: sdist install check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install build
+      - run: python -m build --sdist
+      - run: |
+          python -m venv /tmp/sg-sdist-env
+          /tmp/sg-sdist-env/bin/pip install dist/*.tar.gz
+          /tmp/sg-sdist-env/bin/swapgate --version
+
+  action-selftest-pass:
+    name: Action self-test (parity passes)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build fixture suite
+        run: |
+          pip install -e .
+          swapgate capture --from litellm --in fixtures/traces-litellm.jsonl --out /tmp/ev.jsonl
+          swapgate build-evals --in /tmp/ev.jsonl --out /tmp/selftest.json --name selftest
+          swapgate build-evals --out /tmp/selftest.json --approve
+          cp /tmp/selftest.json ./selftest-suite.json
+      - uses: ./action
+        with:
+          suite: selftest-suite.json
+          baseline: mock:parity
+          candidate: mock:parity
+
+  action-selftest-fail:
+    name: Action self-test (regression fails)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build fixture suite
+        run: |
+          pip install -e .
+          swapgate capture --from litellm --in fixtures/traces-litellm.jsonl --out /tmp/ev.jsonl
+          swapgate build-evals --in /tmp/ev.jsonl --out /tmp/selftest.json --name selftest
+          swapgate build-evals --out /tmp/selftest.json --approve
+          cp /tmp/selftest.json ./selftest-suite.json
+      - id: gate
+        uses: ./action
+        continue-on-error: true
+        with:
+          suite: selftest-suite.json
+          baseline: mock:parity
+          candidate: mock:regress
+          fail-under: '0.5'
+      - name: Assert the gate failed
+        run: |
+          test "${{ steps.gate.outputs.passed }}" = "false"
+          test -f swapgate-receipt.json

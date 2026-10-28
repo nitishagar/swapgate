@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-storage-key="swapgate:theme">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quickstart — SwapGate</title>
+<meta name="description" content="SwapGate in 60 seconds, fully offline.">
+<link rel="stylesheet" href="style.css">
+<script>
+(() => {
+  const key = "swapgate:theme";
+  const stored = localStorage.getItem(key);
+  document.documentElement.dataset.theme = stored === "light" || stored === "dark"
+    ? stored : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+})();
+function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.dataset.theme === "light" ? "dark" : "light";
+  root.dataset.theme = next;
+  localStorage.setItem("swapgate:theme", next);
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+  <a class="brand" href="index.html">Swap<b>Gate</b></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html" aria-current="page">Quickstart</a>
+    <a href="concepts.html">Concepts</a>
+    <a href="cli.html">CLI</a>
+    <a href="india-pack.html">India pack</a>
+  </nav>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">theme</button>
+</header>
+<main>
+  <h1>Quickstart</h1>
+  <p>Fully offline. No API keys. Clone the repo for the fixtures, or use your own traces.</p>
+
+  <h2>1 · Install</h2>
+  <pre>pip install swapgate
+git clone https://github.com/nitishagar/swapgate.git
+cd swapgate</pre>
+
+  <h2>2 · Capture traces</h2>
+  <pre>swapgate capture --from litellm \
+  --in fixtures/traces-litellm.jsonl \
+  --out /tmp/events.jsonl --redact india</pre>
+  <p>Reads LiteLLM payloads (<code>--from otel</code> and <code>--from secmcp</code> also work),
+  pseudonymises PII, and writes canonical events. Corrupt lines are counted and skipped.</p>
+
+  <h2>3 · Build evals (human-approved)</h2>
+  <pre>swapgate build-evals --in /tmp/events.jsonl --out /tmp/suite.json --name demo
+# inspect /tmp/suite.pending.json — every rubric is yours to review
+swapgate build-evals --out /tmp/suite.json --approve</pre>
+
+  <h2>4 · Compare and gate</h2>
+  <pre>swapgate compare --suite /tmp/suite.json \
+  --baseline mock:parity --candidate mock:regress \
+  --fail-under 0.5 --out /tmp/receipt.json --report /tmp/report.md
+echo "exit: $?"   # 2 — the candidate regressed</pre>
+  <p>Exit <code>0</code> passes, <code>2</code> fails the gate, <code>1</code> is a usage error.
+  Swap the mocks for <code>openai-compat:&lt;base-url&gt;|&lt;model&gt;</code> with
+  <code>SWAPGATE_API_KEY</code> set to gate real models.</p>
+
+  <h2>5 · Verify the receipt</h2>
+  <pre>swapgate compare --suite /tmp/suite.json --baseline mock:parity \
+  --candidate mock:parity --out /tmp/receipt.json --key /tmp/demo.key
+swapgate verify --receipt /tmp/receipt.json --key /tmp/demo.key
+# receipt VALID</pre>
+
+  <h2>Next</h2>
+  <p>Read <a href="concepts.html">concepts</a> for judges, the regression rule, and receipts;
+  <a href="cli.html">CLI reference</a> for every flag; and the
+  <a href="https://github.com/nitishagar/swapgate/tree/main/examples/sarvam-swap">Sarvam swap example</a>.</p>
+</main>
+<footer class="site">
+  SwapGate is Apache-2.0 open source.
+</footer>
+</div>
+</body>
+</html>

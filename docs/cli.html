@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-storage-key="swapgate:theme">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLI reference — SwapGate</title>
+<meta name="description" content="Every SwapGate command, flag, provider spec, and exit code.">
+<link rel="stylesheet" href="style.css">
+<script>
+(() => {
+  const key = "swapgate:theme";
+  const stored = localStorage.getItem(key);
+  document.documentElement.dataset.theme = stored === "light" || stored === "dark"
+    ? stored : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+})();
+function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.dataset.theme === "light" ? "dark" : "light";
+  root.dataset.theme = next;
+  localStorage.setItem("swapgate:theme", next);
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+  <a class="brand" href="index.html">Swap<b>Gate</b></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="concepts.html">Concepts</a>
+    <a href="cli.html" aria-current="page">CLI</a>
+    <a href="india-pack.html">India pack</a>
+  </nav>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">theme</button>
+</header>
+<main>
+  <h1>CLI reference</h1>
+
+  <h2>capture</h2>
+  <pre>swapgate capture --from litellm|otel|secmcp --in traces.jsonl --out events.jsonl [--redact profile]</pre>
+  <p>Ingests raw traces into canonical events. <code>--redact</code> takes
+  <code>default</code>, <code>india</code>, or <code>dpdp-strict</code>. Corrupt lines are
+  counted and skipped, never fatal.</p>
+
+  <h2>build-evals</h2>
+  <pre>swapgate build-evals --in events.jsonl --out suite.json [--name NAME] [--clusters K] [--india-pack]
+swapgate build-evals --out suite.json --approve</pre>
+  <p>First run writes <code>suite.pending.json</code> for human review; <code>--approve</code>
+  finalises it. <code>--india-pack</code> tags every case and attaches the DPDP note.</p>
+
+  <h2>compare</h2>
+  <pre>swapgate compare --suite suite.json --baseline SPEC --candidate SPEC
+  [--judge deterministic|typed|llm] [--judge-fixtures FILE]
+  [--fail-under F] [--max-regression G] [--out receipt.json] [--report report.md]
+  [--key KEYFILE | --sign]</pre>
+  <p>Replays the suite on both providers and gates on the regression rule. Exit
+  <code>0</code> passes, <code>2</code> fails, <code>1</code> is a usage error.
+  <code>--key</code> signs with a key file (created if missing); <code>--sign</code> uses
+  the default key. <code>--report</code> writes Markdown (<code>.md</code>) or HTML.</p>
+
+  <h2>report · verify · serve-mcp</h2>
+  <pre>swapgate report --receipt receipt.json --format md|html [--out report.ext]
+swapgate verify --receipt receipt.json --key KEYFILE
+swapgate serve-mcp   # stdio MCP server: compare_models, list_evals</pre>
+
+  <h2>Provider specs</h2>
+  <table>
+    <tr><th>Spec</th><th>Meaning</th></tr>
+    <tr><td><code>mock:parity</code></td><td>Deterministic answers from prompt keywords. Offline.</td></tr>
+    <tr><td><code>mock:regress</code></td><td>Short refusal. Offline; fails content rubrics by design.</td></tr>
+    <tr><td><code>mock:seed-N</code></td><td>Deterministic paraphrase variant N. Offline.</td></tr>
+    <tr><td><code>openai-compat:&lt;base-url&gt;|&lt;model&gt;</code></td><td>Any <code>/chat/completions</code> endpoint. Key from <code>SWAPGATE_API_KEY</code>.</td></tr>
+  </table>
+
+  <h2>Exit codes</h2>
+  <table>
+    <tr><th>Code</th><th>Meaning</th></tr>
+    <tr><td><code>0</code></td><td>Success / gate passed.</td></tr>
+    <tr><td><code>2</code></td><td>Gate failed: regression, floor breach, or invalid receipt.</td></tr>
+    <tr><td><code>1</code></td><td>Usage error: missing file, bad flag, unapproved suite.</td></tr>
+  </table>
+</main>
+<footer class="site">
+  SwapGate is Apache-2.0 open source.
+</footer>
+</div>
+</body>
+</html>

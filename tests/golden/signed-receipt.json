@@ -1,0 +1,44 @@
+{
+  "cases": [
+    {
+      "baseline_output": "Answer regarding refund policy.",
+      "baseline_verdict": {
+        "label": "pass",
+        "passed": true,
+        "probability": 1.0,
+        "rationale": "ok",
+        "score": 1.0
+      },
+      "candidate_output": "Variant answer regarding refund policy.",
+      "candidate_verdict": {
+        "label": "pass",
+        "passed": true,
+        "probability": 1.0,
+        "rationale": "ok",
+        "score": 1.0
+      },
+      "case_id": "i1",
+      "regressed": false
+    }
+  ],
+  "content_hash": "e7598bef77046a45c7bd074e986f3b2a33f95a80d6c9d25179753f76b3f3453a",
+  "issued_at": "2026-10-28T00:00:00+00:00",
+  "signature": "51d078e59c32d3500012b1a1fe69980821303f0923d5f302912a24174843e8bc",
+  "signature_scheme": "hmac-sha256-v1",
+  "summary": {
+    "baseline": "mock:parity",
+    "baseline_pass_rate": 1.0,
+    "candidate": "mock:seed-7",
+    "candidate_pass_rate": 1.0,
+    "fail_under": 0.5,
+    "judge": "deterministic",
+    "max_regression": 0.5,
+    "n_cases": 1,
+    "passed": true,
+    "regressed_case_ids": [],
+    "regression_gap": 0.0,
+    "suite": "interop",
+    "suite_version": "0.1.0"
+  },
+  "v": 1
+}

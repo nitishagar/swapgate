@@ -1,0 +1,60 @@
+{
+  "cases": [
+    {
+      "baseline_output": "Answer regarding Summarise, refund, policy, delayed, flights. In conclusion: the request about Summarise, refund, policy, delayed, flights is handled.",
+      "baseline_verdict": {
+        "label": "pass",
+        "passed": true,
+        "probability": 1.0,
+        "rationale": "2/2 checks passed: all substrings present; len 150 >= 30",
+        "score": 1.0
+      },
+      "candidate_output": "Variant 7 answer (ref 24038b7b) regarding Summarise, refund, policy, delayed, flights. In conclusion: the request about Summarise, refund, policy, delayed, flights is handled.",
+      "candidate_verdict": {
+        "label": "pass",
+        "passed": true,
+        "probability": 1.0,
+        "rationale": "2/2 checks passed: all substrings present; len 175 >= 30",
+        "score": 1.0
+      },
+      "case_id": "golden-1",
+      "regressed": false
+    },
+    {
+      "baseline_output": "Answer regarding Explain, baggage, allowance, rules, clearly. In conclusion: the request about Explain, baggage, allowance, rules, clearly is handled.",
+      "baseline_verdict": {
+        "label": "pass",
+        "passed": true,
+        "probability": 1.0,
+        "rationale": "2/2 checks passed: all substrings present; len 150 >= 30",
+        "score": 1.0
+      },
+      "candidate_output": "Variant 7 answer (ref 5a44d397) regarding Explain, baggage, allowance, rules, clearly. In conclusion: the request about Explain, baggage, allowance, rules, clearly is handled.",
+      "candidate_verdict": {
+        "label": "pass",
+        "passed": true,
+        "probability": 1.0,
+        "rationale": "2/2 checks passed: all substrings present; len 175 >= 30",
+        "score": 1.0
+      },
+      "case_id": "golden-2",
+      "regressed": false
+    }
+  ],
+  "summary": {
+    "baseline": "mock:parity",
+    "baseline_pass_rate": 1.0,
+    "candidate": "mock:seed-7",
+    "candidate_pass_rate": 1.0,
+    "fail_under": 0.5,
+    "judge": "deterministic",
+    "max_regression": 0.5,
+    "n_cases": 2,
+    "passed": true,
+    "regressed_case_ids": [],
+    "regression_gap": 0.0,
+    "suite": "golden",
+    "suite_version": "0.1.0"
+  },
+  "v": 1
+}

@@ -1,0 +1,85 @@
+name: 'swapgate'
+description: >-
+  Replay a SwapGate eval suite on baseline vs candidate models and fail the job
+  on regression. Writes a signed swap receipt, uploads it as an artifact, and
+  appends a Markdown summary.
+inputs:
+  suite:
+    description: 'Path to the eval suite JSON (repository-relative).'
+    required: true
+  baseline:
+    description: "Baseline provider spec (default 'mock:parity')."
+    required: false
+    default: 'mock:parity'
+  candidate:
+    description: "Candidate provider spec (default 'mock:parity')."
+    required: false
+    default: 'mock:parity'
+  judge:
+    description: "Judge: deterministic | typed | llm (default 'deterministic')."
+    required: false
+    default: 'deterministic'
+  judge-fixtures:
+    description: 'Recorded fixtures for --judge llm (offline judging).'
+    required: false
+    default: ''
+  fail-under:
+    description: 'Absolute candidate pass-rate floor (default 0.0).'
+    required: false
+    default: '0.0'
+  max-regression:
+    description: 'Max allowed baseline-minus-candidate gap (default 1.0).'
+    required: false
+    default: '1.0'
+  python-version:
+    description: "Python version for setup-python (default '3.12')."
+    required: false
+    default: '3.12'
+outputs:
+  passed:
+    description: "'true' when the candidate passed the gate."
+    value: ${{ steps.compare.outputs.passed }}
+  receipt:
+    description: 'Path to the signed swap receipt JSON.'
+    value: ${{ steps.compare.outputs.receipt }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install SwapGate
+      shell: bash
+      run: pip install "${GITHUB_ACTION_PATH}/.."
+    - name: Compare models
+      id: compare
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        RECEIPT="swapgate-receipt.json"
+        EXTRA=""
+        if [ -n "${{ inputs.judge-fixtures }}" ]; then
+          EXTRA="--judge-fixtures ${{ inputs.judge-fixtures }}"
+        fi
+        if swapgate compare --suite "${{ inputs.suite }}" \
+            --baseline "${{ inputs.baseline }}" \
+            --candidate "${{ inputs.candidate }}" \
+            --judge "${{ inputs.judge }}" $EXTRA \
+            --fail-under "${{ inputs.fail-under }}" \
+            --max-regression "${{ inputs.max-regression }}" \
+            --out "$RECEIPT" --sign; then
+          echo "passed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "passed=false" >> "$GITHUB_OUTPUT"
+          echo "RECEIPT_STATUS=failed" >> "$GITHUB_ENV"
+        fi
+        echo "receipt=$RECEIPT" >> "$GITHUB_OUTPUT"
+        swapgate report --receipt "$RECEIPT" --format md >> "$GITHUB_STEP_SUMMARY"
+        [ "${RECEIPT_STATUS:-ok}" = "ok" ]
+    - name: Upload receipt
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: swapgate-receipt
+        path: ${{ github.workspace }}/swapgate-receipt.json

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-storage-key="swapgate:theme">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concepts — SwapGate</title>
+<meta name="description" content="Traces, evals, judges, the regression rule, and receipts.">
+<link rel="stylesheet" href="style.css">
+<script>
+(() => {
+  const key = "swapgate:theme";
+  const stored = localStorage.getItem(key);
+  document.documentElement.dataset.theme = stored === "light" || stored === "dark"
+    ? stored : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+})();
+function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.dataset.theme === "light" ? "dark" : "light";
+  root.dataset.theme = next;
+  localStorage.setItem("swapgate:theme", next);
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+  <a class="brand" href="index.html">Swap<b>Gate</b></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="concepts.html" aria-current="page">Concepts</a>
+    <a href="cli.html">CLI</a>
+    <a href="india-pack.html">India pack</a>
+  </nav>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">theme</button>
+</header>
+<main>
+  <h1>Concepts</h1>
+
+  <h2>Traces in</h2>
+  <p>Every ingestor produces the same <code>TraceEvent</code>: messages, output, model,
+  tool calls, usage, status. Supported inputs: LiteLLM standard logging payloads
+  (or the minimal <code>{messages, response, model}</code> shape), OpenTelemetry GenAI
+  spans (flattened or blob attributes), and sec-MCP v1 tool-call logs. Redaction
+  profiles (<code>default</code>, <code>india</code>, <code>dpdp-strict</code>) replace
+  PII with deterministic pseudonyms so clustering stays stable.</p>
+
+  <h2>Evals out</h2>
+  <p>Events cluster offline by template signature plus shingle similarity — no embeddings,
+  no network. Each cluster yields eval cases with heuristic rubrics
+  (<code>contains</code>, <code>regex</code>, length bounds, JSON keys). Nothing runs
+  until a human reviews the pending suite and approves it. Synthesised rubrics are a
+  starting draft, never ground truth.</p>
+
+  <h2>Judges</h2>
+  <table>
+    <tr><th>Judge</th><th>How it scores</th><th>When to use it</th></tr>
+    <tr><td><code>deterministic</code></td><td>Every rubric check must pass; score is the fraction passed.</td><td>CI gates. Fast, explainable, reproducible.</td></tr>
+    <tr><td><code>typed</code></td><td>Deterministic signals mapped to pass / fail / needs-review with a probability.</td><td>Borderline triage; pluggable hosted backends later.</td></tr>
+    <tr><td><code>llm</code></td><td>An OpenAI-compatible judge model returns one-line <code>PASS/FAIL</code> verdicts.</td><td>Rubrics humans can state but regex cannot check.</td></tr>
+  </table>
+
+  <h2>The regression rule</h2>
+  <p>Both providers replay every case and the judge scores both. The candidate
+  <span class="verdict-fail">FAILS</span> when its pass rate drops below
+  <code>--fail-under</code> (absolute floor) or more than <code>--max-regression</code>
+  below the baseline (relative rule). Either breach exits <code>2</code>.</p>
+
+  <h2>Receipts</h2>
+  <p>Each run emits a decision receipt: suite identity, both pass rates, per-case outputs
+  and verdicts, a sha256 content hash, and an HMAC-SHA256 signature under a local key.
+  <code>swapgate verify</code> re-checks both. Tamper-evident and offline; Ed25519 is the
+  documented path to third-party verification. The TypeScript SDK verifies receipts in Node.</p>
+
+  <h2>MCP server</h2>
+  <p><code>swapgate serve-mcp</code> exposes <code>compare_models</code> and
+  <code>list_evals</code> over stdio JSON-RPC, so coding agents can run the gate themselves.</p>
+</main>
+<footer class="site">
+  SwapGate is Apache-2.0 open source.
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-storage-key="swapgate:theme">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SwapGate — the model-swap eval gate</title>
+<meta name="description" content="Production traces become evals. Candidate models must pass before you swap. Open source, Apache-2.0.">
+<link rel="stylesheet" href="style.css">
+<script>
+(() => {
+  const key = document.documentElement.dataset.themeStorageKey || "swapgate:theme";
+  const stored = localStorage.getItem(key);
+  const theme = stored === "light" || stored === "dark"
+    ? stored
+    : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.dataset.theme = theme;
+})();
+function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.dataset.theme === "light" ? "dark" : "light";
+  root.dataset.theme = next;
+  localStorage.setItem(root.dataset.themeStorageKey || "swapgate:theme", next);
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+  <a class="brand" href="index.html">Swap<b>Gate</b></a>
+  <nav>
+    <a href="index.html" aria-current="page">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="concepts.html">Concepts</a>
+    <a href="cli.html">CLI</a>
+    <a href="india-pack.html">India pack</a>
+  </nav>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">theme</button>
+</header>
+<main>
+  <section class="hero">
+    <p class="kicker">open source · apache-2.0 · zero-dependency core</p>
+    <h1>There are many models. <em>Prove the swap</em> before you ship it.</h1>
+    <p class="lede">SwapGate turns your production traces into evals, replays them against a
+      candidate model, and blocks the swap on regression — so moving from rented frontier
+      APIs to self-hosted open weights is a receipt, not a hope.</p>
+    <pre>pip install swapgate
+swapgate compare --suite evals/suite.json \
+  --baseline openai-compat:https://api.provider.com/v1|frontier-large \
+  --candidate openai-compat:http://localhost:8000/v1|sarvam-30b \
+  --fail-under 0.95 --max-regression 0.02</pre>
+    <div class="cta-row">
+      <a class="button" href="quickstart.html">Get started in 60 seconds</a>
+      <a class="button ghost" href="https://github.com/nitishagar/swapgate">GitHub</a>
+    </div>
+  </section>
+
+  <h2>How it works</h2>
+  <div class="cards">
+    <div class="card"><h3>1 · capture</h3><p>Ingest LiteLLM callbacks, OpenTelemetry GenAI spans, or sec-MCP tool-call logs. PII is pseudonymised before anything is stored.</p></div>
+    <div class="card"><h3>2 · build-evals</h3><p>Traces cluster into eval suites offline. A human reviews and approves every rubric before it can run the gate.</p></div>
+    <div class="card"><h3>3 · compare</h3><p>Baseline and candidate replay every case. Deterministic, LLM, or typed-decision judges score both. Regression fails the build.</p></div>
+    <div class="card"><h3>4 · receipt</h3><p>Every run emits a signed swap receipt — JSON verdict plus Markdown/HTML report — your audit trail for the model you now own.</p></div>
+  </div>
+
+  <h2>Why SwapGate</h2>
+  <table>
+    <tr><th>Concern</th><th>What SwapGate does</th></tr>
+    <tr><td>own your intelligence</td><td>Rented models today, owned models tomorrow — carry your evals across every base-model upgrade.</td></tr>
+    <tr><td>runs anywhere</td><td>Stdlib-only Python core. No network, no keys, no phone-home — in CI, on a laptop, or fully air-gapped.</td></tr>
+    <tr><td>india pack</td><td>Hinglish templates, DPDP redaction profiles, and a FREE-AI control annex for teams evaluating self-hosted Indic models.</td></tr>
+  </table>
+</main>
+<footer class="site">
+  SwapGate is Apache-2.0 open source. Traces are personal data: redact before storage, retain briefly.
+</footer>
+</div>
+</body>
+</html>

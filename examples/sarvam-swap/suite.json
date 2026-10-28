@@ -1,0 +1,155 @@
+{
+  "cases": [
+    {
+      "expected": "Here is a draft reply for your GST notice referencing PAN <PAN_031f91>.",
+      "id": "indic-support-c00-0002",
+      "input": [
+        {
+          "content": "Draft a GST notice reply. My PAN is <PAN_031f91> and UPI id is <UPI_5e4a38>.",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "draft"
+        },
+        {
+          "type": "contains",
+          "value": "notice"
+        },
+        {
+          "type": "contains",
+          "value": "reply"
+        },
+        {
+          "type": "max_length",
+          "value": 213
+        }
+      ],
+      "source_trace_ids": [
+        "litellm-unknown"
+      ],
+      "tags": [
+        "cluster:0",
+        "pack:india-v0"
+      ]
+    },
+    {
+      "expected": "Refunds for delayed flights are processed within 7 days.",
+      "id": "indic-support-c01-0000",
+      "input": [
+        {
+          "content": "Summarise the refund policy for delayed flights",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "summarise"
+        },
+        {
+          "type": "contains",
+          "value": "refund"
+        },
+        {
+          "type": "contains",
+          "value": "policy"
+        },
+        {
+          "type": "max_length",
+          "value": 168
+        }
+      ],
+      "source_trace_ids": [
+        "lit-001"
+      ],
+      "tags": [
+        "cluster:1",
+        "pack:india-v0"
+      ]
+    },
+    {
+      "expected": "",
+      "id": "indic-support-c02-0003",
+      "input": [
+        {
+          "content": "unreachable",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "unreachable"
+        }
+      ],
+      "source_trace_ids": [
+        "lit-004"
+      ],
+      "tags": [
+        "cluster:2",
+        "pack:india-v0"
+      ]
+    },
+    {
+      "expected": "Cancelled flights get a full refund to <EMAIL_00d20c>'s original payment method.",
+      "id": "indic-support-c03-0001",
+      "input": [
+        {
+          "content": "What is the refund policy for cancelled flights? Contact me at <EMAIL_00d20c> or <PHONE_IN_0dfc0a>",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "refund"
+        },
+        {
+          "type": "contains",
+          "value": "policy"
+        },
+        {
+          "type": "contains",
+          "value": "cancelled"
+        },
+        {
+          "type": "max_length",
+          "value": 240
+        }
+      ],
+      "source_trace_ids": [
+        "lit-002"
+      ],
+      "tags": [
+        "cluster:3",
+        "pack:india-v0"
+      ]
+    }
+  ],
+  "metadata": {
+    "clusters": 4,
+    "dpdp_note": "DPDP Act 2023: traces are personal data. Minimise collection, pseudonymise before storage (redact profile 'india' or 'dpdp-strict'), retain at most 30 days, delete on request. Full duties from 13 May 2027.",
+    "pack": "india-v0"
+  },
+  "name": "indic-support",
+  "version": "0.1.0"
+}
