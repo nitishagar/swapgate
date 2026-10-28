@@ -19,6 +19,7 @@ jobs:
           python-version: '3.12'
       - run: pip install -e '.[dev]'
       - run: python -m pytest -q
+      - run: swapgate manifest --check
 
   ts-sdk:
     name: TS SDK tests + build

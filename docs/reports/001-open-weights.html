@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swap receipt: PASS — report-001</title>
+<style>
+:root{color-scheme:dark;--bg:#161d27;--bg-deep:#0d1116;--panel:#212730;
+--line:#495059;--text:#ebe7e4;--muted:#9fa4ab;--accent:#b86b52;
+--pass:#5db87a;--fail:#e8704f}
+body{background:var(--bg-deep);color:var(--text);font-family:Georgia,'Times New Roman',serif;
+margin:0;padding:2rem 1rem}
+main{max-width:56rem;margin:0 auto}
+h1{font-size:1.6rem}h1 .verdict-pass{color:var(--pass)}h1 .verdict-fail{color:var(--fail)}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:.45rem .6rem;text-align:left}
+th{background:var(--panel)}td.mono,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.8rem}
+.muted{color:var(--muted)}.badge{display:inline-block;padding:.1rem .5rem;border-radius:.4rem;
+font-family:ui-monospace,Menlo,monospace;font-size:.78rem}
+.badge.pass{background:#1d3a28;color:var(--pass)}.badge.fail{background:#3a241d;color:var(--fail)}
+.badge.review{background:#3a3320;color:#e8993a}
+details{background:var(--bg);border:1px solid var(--line);border-radius:.4rem;
+padding:.5rem .8rem;margin:.4rem 0}
+summary{cursor:pointer;font-family:ui-monospace,Menlo,monospace;font-size:.85rem}
+pre{white-space:pre-wrap;word-break:break-word;font-size:.78rem;color:var(--muted)}
+a{color:var(--accent)}
+</style></head>
+<body><main>
+<h1>Swap receipt: <span class="verdict-pass">PASS</span></h1>
+<p class="muted">Suite <span class="mono">report-001 v0.1.0</span>
+— 5 cases, judge <span class="mono">deterministic</span></p>
+<table><tr><th></th><th>Model</th><th>Pass rate</th></tr>
+<tr><td>Baseline</td><td class="mono">mock:parity</td><td>0.2</td></tr>
+<tr><td>Candidate</td><td class="mono">mock:seed-3</td><td>0.2</td></tr>
+</table>
+<p>Regression gap <strong>0.0</strong>
+(floor 0.0, max gap 0.5).
+Issued 2026-10-28T07:09:56.327297+00:00.</p>
+<p class="mono muted">hash  · none</p>
+<h2>Cases</h2>
+<table><tr><th>case</th><th>baseline</th><th>candidate</th><th>regressed</th></tr>
+<tr><td class='mono'>report-001-c00-0003</td><td><span class="badge fail">fail</span></td><td><span class="badge fail">fail</span></td><td>no</td></tr><tr><td class='mono'>report-001-c01-0002</td><td><span class="badge fail">fail</span></td><td><span class="badge fail">fail</span></td><td>no</td></tr><tr><td class='mono'>report-001-c02-0000</td><td><span class="badge fail">fail</span></td><td><span class="badge fail">fail</span></td><td>no</td></tr><tr><td class='mono'>report-001-c03-0004</td><td><span class="badge fail">fail</span></td><td><span class="badge fail">fail</span></td><td>no</td></tr><tr><td class='mono'>report-001-c04-0001</td><td><span class="badge pass">pass</span></td><td><span class="badge pass">pass</span></td><td>no</td></tr></table>
+
+</main></body></html>

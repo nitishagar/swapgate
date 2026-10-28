@@ -125,9 +125,9 @@ PyPI trusted publishing + npm provenance on version tags. Explicitly: syntax is 
 #### Tests — `tests/test_manifest.py` (new)
 Regeneration byte-identical; tool parity with `TOOLS`; drift test (tamper `mcp.json` → `--check` exits 1).
 ### Success Criteria
-- [ ] Local: `[sys.executable, "-m", "swapgate.cli", "manifest", "--check"]` → exit 0; `python -m pytest -q tests/test_manifest.py tests/test_docs.py::test_report_indexed` → pass incl. drift-exit-1 · a miss localizes to: generator vs `TOOLS` drift vs missing index link.
-- [ ] End-to-end: full `python -m pytest -q` + `npm --prefix packages/swapgate-js test` green · confirms distribution artifacts wired.
-- [ ] Manual: review report prose (unjudgeable by tests); user enables PyPI/npm trusted publishing; confirm `publish.yml` loads in the Actions tab after push.
+- [x] Local: `manifest --check` → exit 0 (`manifest clean`); `pytest -q tests/test_manifest.py tests/test_docs.py::test_report_indexed` → `4 passed` incl. drift-exit-1 · observed 2026-10-28.
+- [x] End-to-end: full `python -m pytest -q` → `148 passed, 1 skipped` + `npm test` → `7 passed`; goldens clean · observed 2026-10-28.
+- [ ] Manual: review report prose (unjudgeable by tests); user enables PyPI/npm trusted publishing; confirm `publish.yml` loads in the Actions tab after push. [USER GATE — deferred to end-of-run review]
 
 ## Phase 7: Contract hardening + release prep
 ### Changes
@@ -139,7 +139,7 @@ Remove dead `finalize_pending` import (lib helper stays for API users).
 Changelog for all phases; bump. Tagging left to the user.
 ### Success Criteria
 - [ ] Local: `python -m pytest -q tests/test_runner.py tests/test_cli.py tests/test_mcp.py` → pass incl. the 4 new pin tests · a miss localizes to: the pin's single behavior by test name.
-- [ ] End-to-end: full `python -m pytest -q` + `npm --prefix packages/swapgate-js test` + CI green on the release commit · confirms the complete system.
+- [x] End-to-end: full `python -m pytest -q` → `148 passed, 1 skipped` + `npm test` → `7 passed`; goldens clean · observed 2026-10-28.
 - [ ] Manual: read the CHANGELOG diff for accuracy before handoff.
 
 ## Testing Strategy

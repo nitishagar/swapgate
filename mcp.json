@@ -1,0 +1,58 @@
+{
+  "description": "SwapGate MCP server: run model-swap eval gates from coding agents.",
+  "name": "swapgate",
+  "tools": [
+    {
+      "description": "Replay an eval suite on baseline and candidate models; return the swap receipt.",
+      "inputSchema": {
+        "properties": {
+          "baseline": {
+            "default": "mock:parity",
+            "type": "string"
+          },
+          "candidate": {
+            "default": "mock:parity",
+            "type": "string"
+          },
+          "fail_under": {
+            "default": 0.0,
+            "type": "number"
+          },
+          "judge": {
+            "default": "deterministic",
+            "type": "string"
+          },
+          "max_regression": {
+            "default": 1.0,
+            "type": "number"
+          },
+          "suite": {
+            "description": "Path to suite JSON",
+            "type": "string"
+          }
+        },
+        "required": [
+          "suite"
+        ],
+        "type": "object"
+      },
+      "name": "compare_models"
+    },
+    {
+      "description": "List eval case ids and tags of a suite file.",
+      "inputSchema": {
+        "properties": {
+          "suite": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "suite"
+        ],
+        "type": "object"
+      },
+      "name": "list_evals"
+    }
+  ],
+  "version": "0.1.0"
+}

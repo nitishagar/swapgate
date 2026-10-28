@@ -181,6 +181,18 @@ def cmd_serve(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_manifest(args: argparse.Namespace) -> int:
+    from .manifest import check_manifest, write_manifest
+
+    if args.check:
+        ok = check_manifest(args.out)
+        print("manifest clean" if ok else f"manifest drift: {args.out} is stale")
+        return EXIT_OK if ok else EXIT_ERROR
+    write_manifest(args.out)
+    print(f"wrote manifest -> {args.out}")
+    return EXIT_OK
+
+
 def cmd_teams_create(args: argparse.Namespace) -> int:
     from . import teams
 
@@ -270,6 +282,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--history", default="./swapgate-runs.db")
     p.add_argument("--key", default="")
     p.set_defaults(func=cmd_serve)
+
+    p = sub.add_parser("manifest", help="generate/check the MCP server manifest")
+    p.add_argument("--out", default="mcp.json")
+    p.add_argument("--check", action="store_true")
+    p.set_defaults(func=cmd_manifest)
 
     p = sub.add_parser("teams", help="manage team API keys")
     teams_sub = p.add_subparsers(dest="teams_command", required=True)

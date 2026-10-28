@@ -36,6 +36,18 @@ def test_no_external_assets():
                 assert not attr.startswith(("http://", "https://")), f"{page}: {tag}"
 
 
+def test_report_indexed():
+    """Every docs/reports page must be linked from index.html (fails if unwired)."""
+    reports = os.path.join(DOCS, "reports")
+    assert os.path.isdir(reports)
+    with open(os.path.join(DOCS, "index.html"), encoding="utf-8") as fh:
+        index = fh.read()
+    pages = sorted(f for f in os.listdir(reports) if f.endswith(".html"))
+    assert pages
+    for page in pages:
+        assert f"reports/{page}" in index, page
+
+
 def test_every_page_links_home_and_has_title():
     for page in PAGES:
         with open(os.path.join(DOCS, page), encoding="utf-8") as fh:
