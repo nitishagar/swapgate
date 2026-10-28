@@ -1,0 +1,1 @@
+{"schedules": [{"baseline": "mock:parity", "candidate": "mock:parity", "fail_under": 0.0, "interval_hours": 168, "judge": "deterministic", "max_regression": 1.0, "suite": "examples/scheduled/selftest-suite.json"}]}

@@ -15,6 +15,7 @@ from . import __version__
 from .compare import compare
 from .evals import (
     ApprovalRequiredError,
+    approval_stamp,
     build_suite,
     finalize_pending,
     load_suite,
@@ -22,9 +23,7 @@ from .evals import (
     save_suite,
 )
 from .ingest import parse_litellm, parse_otel_span, parse_secmcp
-from .judges.deterministic import DeterministicJudge
-from .judges.llm import FixtureCompleter, LLMJudge
-from .judges.typed import TypedJudge
+from .judges.llm import FixtureCompleter
 from .receipt import (
     build_receipt_body,
     load_or_create_key,
@@ -68,6 +67,7 @@ def cmd_build_evals(args: argparse.Namespace) -> int:
             print(f"error: no pending suite at {pending}; run without --approve first", file=sys.stderr)
             return EXIT_ERROR
         suite = load_suite(pending)
+        suite.metadata["approved"] = approval_stamp()
         save_suite(suite, args.output)
         print(f"approved {len(suite.cases)} cases -> {args.output}")
         return EXIT_OK
@@ -100,17 +100,13 @@ def cmd_build_evals(args: argparse.Namespace) -> int:
 
 
 def _judge_for(args: argparse.Namespace):  # noqa: ANN202 (tiny CLI factory)
-    if args.judge == "deterministic":
-        return DeterministicJudge()
-    if args.judge == "typed":
-        return TypedJudge()
-    if args.judge == "llm":
-        if not args.judge_fixtures:
-            print("error: --judge llm needs --judge-fixtures (offline) or a live completer", file=sys.stderr)
-            raise SystemExit(EXIT_ERROR)
-        with open(args.judge_fixtures, encoding="utf-8") as fh:
-            return LLMJudge(FixtureCompleter(json.load(fh)))
-    raise SystemExit(f"unknown judge: {args.judge}")
+    from .judges import get_judge
+
+    try:
+        return get_judge(args.judge, getattr(args, "judge_fixtures", ""))
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(EXIT_ERROR)
 
 
 def cmd_compare(args: argparse.Namespace) -> int:
@@ -165,6 +161,19 @@ def cmd_serve_mcp(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_run_scheduled(args: argparse.Namespace) -> int:
+    from .schedule import run_due
+
+    outcome = run_due(args.schedules, args.history, force=args.force)
+    print(f"scheduled: ran {outcome['ran']} "
+          f"({outcome['passed']} pass, {outcome['failed']} fail, "
+          f"{len(outcome['errors'])} errors)")
+    for error in outcome["errors"]:
+        print(f"error: {error}", file=sys.stderr)
+    code = outcome["exit_code"]
+    return EXIT_OK if code == 0 else EXIT_GATE_FAIL if code == 2 else EXIT_ERROR
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="swapgate", description="Model-swap eval gate.")
     parser.add_argument("--version", action="version", version=f"swapgate {__version__}")
@@ -216,6 +225,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("serve-mcp", help="run the stdio MCP server")
     p.set_defaults(func=cmd_serve_mcp)
+
+    p = sub.add_parser("run-scheduled", help="run due scheduled comparisons")
+    p.add_argument("--schedules", default="./schedules.json")
+    p.add_argument("--history", default="./swapgate-runs.db")
+    p.add_argument("--force", action="store_true",
+                   help="ignore due-state (for CI)")
+    p.set_defaults(func=cmd_run_scheduled)
     return parser
 
 

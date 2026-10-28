@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from typing import Any
 
 from .cluster import Cluster, cluster_events
@@ -127,6 +128,12 @@ class ApprovalRequiredError(Exception):
     pass
 
 
+def approval_stamp() -> dict[str, str]:
+    """Human-approval marker both approval paths stamp onto suites."""
+    return {"by": "human",
+            "at": datetime.now(timezone.utc).isoformat()}
+
+
 def finalize_pending(pending_path: str, out_path: str, approved: bool) -> EvalSuite:
     """Finalise a pending suite. Raises unless the human review flag is set."""
     if not approved:
@@ -134,5 +141,6 @@ def finalize_pending(pending_path: str, out_path: str, approved: bool) -> EvalSu
             f"human review required: inspect {pending_path}, then re-run with --approve"
         )
     suite = load_suite(pending_path)
+    suite.metadata["approved"] = approval_stamp()
     save_suite(suite, out_path)
     return suite

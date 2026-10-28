@@ -80,9 +80,9 @@ New job `scheduled-selftest` (triggers: weekly `schedule:`, `workflow_dispatch`,
 #### Tests — `tests/test_schedule.py`, `tests/test_history.py` (new)
 Due/skip/`--force`, claim single-flight (two overlapping invocations in threads → one executes; stale claim reaped after TTL), approval refusal ×2, failure-row + exit 1, `last_run` advanced on success only (asserted unchanged on skip/failure/refusal), receipt-identity byte-diff vs CLI modulo `test_golden.VOLATILE`, append-only re-run.
 ### Success Criteria
-- [ ] Local: `python -m pytest -q tests/test_schedule.py tests/test_history.py` → pass incl. identity diff + refusal + single-flight · a miss localizes to: scheduler (`schedule.py`) vs store (`history.py`) by failing file.
-- [ ] End-to-end: full `python -m pytest -q` green + `run-scheduled` twice on fixtures (second: nothing due, exit 0, no new rows) + `scheduled-selftest` job green on the phase push · confirms skip semantics in the real pipeline and the job definition works.
-- [ ] Manual: none.
+- [x] Local: `python -m pytest -q tests/test_schedule.py tests/test_history.py` → `16 passed` incl. identity diff + refusal + single-flight (threads test stable 3/3) · observed 2026-10-28.
+- [x] End-to-end: full `python -m pytest -q` → `121 passed, 1 skipped`; goldens clean; scheduler twice on fixtures (pass, then nothing-due); `scheduled-selftest` job green on the phase push · observed 2026-10-28.
+- [x] Manual: none · N/A.
 
 ## Phase 4: Hosted API + teams + test-mode billing
 ### Changes
@@ -150,6 +150,7 @@ Unit tests per new module (one-file-per-module convention); integration via subp
 
 - AMENDED 2026-10-28 Phase 1 [factual]: e2e failure path uses `mock_response=<Exception instance>` instead of the `litellm.MockException:` prefix string — the prefix does not raise in litellm 1.106.5 (returned literally; verified empirically), while an Exception instance raises and fires `log_failure_event`. Same mechanism (mock-raised failure), no interface change.
 - AMENDED 2026-10-28 Phase 2 [factual]: P2 e2e file is `tests/e2e/test_rubrics_llm_e2e.py`, not `test_rubrics_llm.py` — duplicate basenames across `tests/` and `tests/e2e/` break pytest collection (import file mismatch). Same tests, unique name; no mechanism change.
+- AMENDED 2026-10-28 Phase 3 [factual]: judge mapping lives in `judges.get_judge` (new shared factory) with `cli._judge_for` delegating, instead of the scheduler importing the CLI private — direct import would be circular (`cli`→`schedule`→`cli`). Identical mapping and CLI exit behavior; no interface change.
 
 ## References
 

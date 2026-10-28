@@ -1,0 +1,153 @@
+{
+  "cases": [
+    {
+      "expected": "Here is a draft reply for your GST notice referencing PAN ABCDE1234F.",
+      "id": "selftest-c00-0002",
+      "input": [
+        {
+          "content": "Draft a GST notice reply. My PAN is ABCDE1234F and UPI id is priya@okhdfc.",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "draft"
+        },
+        {
+          "type": "contains",
+          "value": "notice"
+        },
+        {
+          "type": "contains",
+          "value": "reply"
+        },
+        {
+          "type": "max_length",
+          "value": 207
+        }
+      ],
+      "source_trace_ids": [
+        "litellm-unknown"
+      ],
+      "tags": [
+        "cluster:0"
+      ]
+    },
+    {
+      "expected": "Refunds for delayed flights are processed within 7 days.",
+      "id": "selftest-c01-0000",
+      "input": [
+        {
+          "content": "Summarise the refund policy for delayed flights",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "summarise"
+        },
+        {
+          "type": "contains",
+          "value": "refund"
+        },
+        {
+          "type": "contains",
+          "value": "policy"
+        },
+        {
+          "type": "max_length",
+          "value": 168
+        }
+      ],
+      "source_trace_ids": [
+        "lit-001"
+      ],
+      "tags": [
+        "cluster:1"
+      ]
+    },
+    {
+      "expected": "",
+      "id": "selftest-c02-0003",
+      "input": [
+        {
+          "content": "unreachable",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "unreachable"
+        }
+      ],
+      "source_trace_ids": [
+        "lit-004"
+      ],
+      "tags": [
+        "cluster:2"
+      ]
+    },
+    {
+      "expected": "Cancelled flights get a full refund to priya@example.com's original payment method.",
+      "id": "selftest-c03-0001",
+      "input": [
+        {
+          "content": "What is the refund policy for cancelled flights? Contact me at priya@example.com or +91 98765 43210",
+          "role": "user"
+        }
+      ],
+      "rubric": [
+        {
+          "type": "min_length",
+          "value": 1
+        },
+        {
+          "type": "contains",
+          "value": "refund"
+        },
+        {
+          "type": "contains",
+          "value": "policy"
+        },
+        {
+          "type": "contains",
+          "value": "cancelled"
+        },
+        {
+          "type": "max_length",
+          "value": 249
+        }
+      ],
+      "source_trace_ids": [
+        "lit-002"
+      ],
+      "tags": [
+        "cluster:3"
+      ]
+    }
+  ],
+  "metadata": {
+    "approved": {
+      "at": "2026-10-28T06:56:16.558613+00:00",
+      "by": "human"
+    },
+    "clusters": 4
+  },
+  "name": "selftest",
+  "version": "0.1.0"
+}
