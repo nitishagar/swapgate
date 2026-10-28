@@ -73,7 +73,22 @@ def cmd_build_evals(args: argparse.Namespace) -> int:
         return EXIT_OK
     rows = read_jsonl(args.input)
     events = [TraceEvent.from_dict(r) for r in rows]
-    suite = build_suite(args.name, events, max_clusters=args.clusters)
+    completer = None
+    if args.rubrics == "llm":
+        if args.rubrics_fixtures:
+            with open(args.rubrics_fixtures, encoding="utf-8") as fh:
+                completer = FixtureCompleter(json.load(fh))
+        else:
+            base = os.environ.get("SWAPGATE_BASE_URL", "")
+            model = os.environ.get("SWAPGATE_MODEL", "")
+            if not base or not model:
+                print("error: --rubrics llm needs --rubrics-fixtures or "
+                      "SWAPGATE_BASE_URL/SWAPGATE_MODEL", file=sys.stderr)
+                return EXIT_ERROR
+            from .rubrics_llm import ProviderCompleter
+            completer = ProviderCompleter(parse_provider(f"openai-compat:{base}|{model}"))
+    suite = build_suite(args.name, events, max_clusters=args.clusters,
+                        rubric_source=args.rubrics, rubric_completer=completer)
     if args.india_pack:
         from .india import apply_pack
         suite = apply_pack(suite)
@@ -169,6 +184,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--name", default="suite")
     p.add_argument("--clusters", type=int, default=8)
     p.add_argument("--india-pack", action="store_true")
+    p.add_argument("--rubrics", choices=["heuristic", "llm"], default="heuristic")
+    p.add_argument("--rubrics-fixtures", default="")
     p.add_argument("--approve", action="store_true")
     p.set_defaults(func=cmd_build_evals)
 

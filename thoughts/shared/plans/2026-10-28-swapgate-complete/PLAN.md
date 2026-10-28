@@ -62,12 +62,12 @@ Replace ```` ``` ```` runs inside interpolated Markdown outputs with `´´´`; a
 `synthesize_rubric_llm(cluster, completer)`: prompt for check dicts; validate each against the 7-type vocabulary (required field + JSON type per type, mirroring `run_check` needs: `value`|`values`|`pattern`|`keys`); drop invalid checks (heuristic `min_length:1` base always kept, so rubrics never degrade to vacuous-empty). Sync bridge for live use: `asyncio.run(provider.complete(...))` per synthesis call (batch-time, few clusters).
 #### Eval wiring — `src/swapgate/evals.py`, `src/swapgate/cli.py`
 `build_suite(..., rubric_source="heuristic"|"llm")` threaded through `build_suite_from_clusters(..., rubric_source="heuristic")` (new defaulted param; per-case branch selects `synthesize_rubric` vs `synthesize_rubric_llm`, sharing id/tag/`expected` logic — no duplication); `build-evals --rubrics heuristic|llm` (default heuristic) + `--rubrics-fixtures` (JSON `{prompt: completion}`, consumed via the existing `FixtureCompleter`, unknown→`KeyError`).
-#### Tests — `tests/test_rubrics_llm.py`, `tests/e2e/test_rubrics_llm.py` (new)
+#### Tests — `tests/test_rubrics_llm.py`, `tests/e2e/test_rubrics_llm_e2e.py` (new)
 Valid synthesis, invalid-check drop, bridge-await test with a fake async provider (asserts `str`, never coroutine), heuristic default untouched; e2e file proves an `--rubrics llm` fixture suite passes approval and gates.
 ### Success Criteria
-- [ ] Local: `python -m pytest -q tests/test_rubrics_llm.py` → pass incl. drop + bridge tests · a miss localizes to: synthesis/validation (`rubrics_llm.py`) vs wiring (`evals.py`, caught by default-path tests).
-- [ ] End-to-end: full `python -m pytest -q` green AND `git diff --exit-code -- tests/golden/` clean · confirms default path untouched (full suite, not just e2e, so `test_receipt.py`/`test_golden.py` re-run).
-- [ ] Manual: inspect one LLM-synthesised pending suite for sanity before its fixture text is frozen (uses `SWAPGATE_BASE_URL`/`SWAPGATE_MODEL` like the `live` marker when a live look is wanted; fixtures otherwise).
+- [x] Local: `python -m pytest -q tests/test_rubrics_llm.py` → `6 passed` incl. drop + bridge tests · observed 2026-10-28.
+- [x] End-to-end: full `python -m pytest -q` → `105 passed, 1 skipped`; `git diff --exit-code -- tests/golden/` clean · observed 2026-10-28.
+- [ ] Manual: inspect one LLM-synthesised pending suite for sanity before its fixture text is frozen (uses `SWAPGATE_BASE_URL`/`SWAPGATE_MODEL` like the `live` marker when a live look is wanted; fixtures otherwise). [USER GATE — deferred to end-of-run review]
 
 ## Phase 3: Scheduled regressions + run history
 ### Changes
@@ -144,11 +144,12 @@ Changelog for all phases; bump. Tagging left to the user.
 
 ## Testing Strategy
 
-Unit tests per new module (one-file-per-module convention); integration via subprocess-CLI e2e (`tests/e2e/`) extended per phase (P2 adds `tests/e2e/test_rubrics_llm.py`, P5 adds `tests/e2e/test_secmcp_roundtrip.py`); oracles reused: goldens (diff-clean enforced), signed interop golden, fixtures, sibling judges/providers; full `pytest` re-runs in every phase E2E (P4 additionally cross-checks receipts with the TS verifier). Gaps closed: local-tracing e2e (P1), unknown-mock pin (P7), unsigned-shape pins (P7), parser-exception pin (P7), fence injection (P1), scheduler claims/failure observability (P3), webhook atomicity (P4), example/report assertion (P6 index test). Explicitly deferred with reason: no-Python-lint gate (8 small modules, single author — review burden exceeds value; revisit with contributors); concurrency/cases-per-cluster surface tunability (fixed defaults suffice for small suites; run-level observability covers ops needs); no-benchmark standing gap (out of scope per size bound). Rubric quality stays human-reviewed. Live billing/LLM paths stay hermetic via fixtures; user test keys exercised in P4 manual only.
+Unit tests per new module (one-file-per-module convention); integration via subprocess-CLI e2e (`tests/e2e/`) extended per phase (P2 adds `tests/e2e/test_rubrics_llm_e2e.py`, P5 adds `tests/e2e/test_secmcp_roundtrip.py`); oracles reused: goldens (diff-clean enforced), signed interop golden, fixtures, sibling judges/providers; full `pytest` re-runs in every phase E2E (P4 additionally cross-checks receipts with the TS verifier). Gaps closed: local-tracing e2e (P1), unknown-mock pin (P7), unsigned-shape pins (P7), parser-exception pin (P7), fence injection (P1), scheduler claims/failure observability (P3), webhook atomicity (P4), example/report assertion (P6 index test). Explicitly deferred with reason: no-Python-lint gate (8 small modules, single author — review burden exceeds value; revisit with contributors); concurrency/cases-per-cluster surface tunability (fixed defaults suffice for small suites; run-level observability covers ops needs); no-benchmark standing gap (out of scope per size bound). Rubric quality stays human-reviewed. Live billing/LLM paths stay hermetic via fixtures; user test keys exercised in P4 manual only.
 
 ## Amendments
 
 - AMENDED 2026-10-28 Phase 1 [factual]: e2e failure path uses `mock_response=<Exception instance>` instead of the `litellm.MockException:` prefix string — the prefix does not raise in litellm 1.106.5 (returned literally; verified empirically), while an Exception instance raises and fires `log_failure_event`. Same mechanism (mock-raised failure), no interface change.
+- AMENDED 2026-10-28 Phase 2 [factual]: P2 e2e file is `tests/e2e/test_rubrics_llm_e2e.py`, not `test_rubrics_llm.py` — duplicate basenames across `tests/` and `tests/e2e/` break pytest collection (import file mismatch). Same tests, unique name; no mechanism change.
 
 ## References
 

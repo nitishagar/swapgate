@@ -81,15 +81,28 @@ def build_suite_from_clusters(
     events: list[TraceEvent],
     clusters: list[Cluster],
     cases_per_cluster: int = 2,
+    rubric_source: str = "heuristic",
+    rubric_completer: Any = None,
 ) -> EvalSuite:
+    if rubric_source not in ("heuristic", "llm"):
+        raise ValueError(f"unknown rubric source: {rubric_source}")
+    if rubric_source == "llm":
+        if rubric_completer is None:
+            raise ValueError("rubric_source='llm' needs a rubric_completer")
+        from .rubrics_llm import synthesize_rubric_llm
     cases: list[EvalCase] = []
     for ci, cluster in enumerate(clusters):
+        llm_rubric = (
+            synthesize_rubric_llm(cluster, rubric_completer)
+            if rubric_source == "llm" else None
+        )
         for member in cluster.members[:cases_per_cluster]:
             event = events[member]
             cases.append(EvalCase(
                 id=f"{name}-c{ci:02d}-{member:04d}",
                 input=[dict(m) for m in event.messages],
-                rubric=synthesize_rubric(cluster, event.output),
+                rubric=([dict(c) for c in llm_rubric] if llm_rubric is not None
+                        else synthesize_rubric(cluster, event.output)),
                 expected=event.output,
                 tags=[f"cluster:{ci}"],
                 source_trace_ids=[event.trace_id],
@@ -97,8 +110,17 @@ def build_suite_from_clusters(
     return EvalSuite(name=name, cases=cases, metadata={"clusters": len(clusters)})
 
 
-def build_suite(name: str, events: list[TraceEvent], max_clusters: int = 8) -> EvalSuite:
-    return build_suite_from_clusters(name, events, cluster_events(events, max_clusters))
+def build_suite(
+    name: str,
+    events: list[TraceEvent],
+    max_clusters: int = 8,
+    rubric_source: str = "heuristic",
+    rubric_completer: Any = None,
+) -> EvalSuite:
+    return build_suite_from_clusters(
+        name, events, cluster_events(events, max_clusters),
+        rubric_source=rubric_source, rubric_completer=rubric_completer,
+    )
 
 
 class ApprovalRequiredError(Exception):
