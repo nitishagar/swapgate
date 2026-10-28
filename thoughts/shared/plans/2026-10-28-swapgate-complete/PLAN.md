@@ -52,9 +52,9 @@ New job `e2e-tracing`: `pip install -e '.[dev,e2e]'` then `python -m pytest -q t
 #### Fence escaping — `src/swapgate/report.py`, `tests/test_report.py`, `examples/sarvam-swap/report.md`
 Replace ```` ``` ```` runs inside interpolated Markdown outputs with `´´´`; add fence-breaking test; regenerate the sarvam example report in the same change (moved here from P7 so no frozen artifact goes stale).
 ### Success Criteria
-- [ ] Local: `python -m pytest -q tests/e2e/test_litellm_pipeline.py tests/test_diet.py tests/test_report.py` → all pass incl. failure-hook capture + fence test + `swapgate report` CLI render of a fence-breaking receipt (covers `cli.py:129`) · a miss localizes to: harness/litellm drift (JSONL invalid) vs `capture` (JSONL valid, CLI fails) vs diet (import violation names the file).
-- [ ] End-to-end: `python -m pytest -q` green AND `git diff --exit-code -- tests/golden/` clean AND `e2e-tracing` job green on the phase push (observed via `gh run view --json conclusion`) · confirms no gate-byte drift and the CI job definition works.
-- [ ] Manual: none (telemetry-off asserted in-test).
+- [x] Local: `python -m pytest -q tests/e2e/test_litellm_pipeline.py tests/test_diet.py tests/test_report.py` → `6 passed` incl. failure-hook capture + fence test + CLI render · observed 2026-10-28.
+- [x] End-to-end: `python -m pytest -q` → `97 passed, 1 skipped`; `git diff --exit-code -- tests/golden/` clean; `e2e-tracing` job green on the phase push (see commit CI) · observed 2026-10-28.
+- [x] Manual: none (telemetry-off asserted in-test) · N/A.
 
 ## Phase 2: LLM-synthesised rubrics
 ### Changes
@@ -148,7 +148,7 @@ Unit tests per new module (one-file-per-module convention); integration via subp
 
 ## Amendments
 
-[Empty at authoring.]
+- AMENDED 2026-10-28 Phase 1 [factual]: e2e failure path uses `mock_response=<Exception instance>` instead of the `litellm.MockException:` prefix string — the prefix does not raise in litellm 1.106.5 (returned literally; verified empirically), while an Exception instance raises and fires `log_failure_event`. Same mechanism (mock-raised failure), no interface change.
 
 ## References
 

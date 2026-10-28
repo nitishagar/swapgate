@@ -28,6 +28,11 @@ a{color:var(--accent)}
 """
 
 
+def _fence(text: str) -> str:
+    """Neutralize fence runs so interpolated outputs cannot break code blocks."""
+    return text.replace("```", "´´´")
+
+
 def to_markdown(receipt: dict[str, Any]) -> str:
     s = receipt.get("summary", {})
     verdict = "PASS" if s.get("passed") else "FAIL"
@@ -62,10 +67,10 @@ def to_markdown(receipt: dict[str, Any]) -> str:
             lines.append("")
             lines.append("Baseline said:")
             lines.append("")
-            lines.append(f"```\n{case.get('baseline_output', '')}\n```")
+            lines.append(f"```\n{_fence(str(case.get('baseline_output', '')))}\n```")
             lines.append("Candidate said:")
             lines.append("")
-            lines.append(f"```\n{case.get('candidate_output', '')}\n```")
+            lines.append(f"```\n{_fence(str(case.get('candidate_output', '')))}\n```")
     lines += ["", f"_Verify: `swapgate verify --receipt receipt.json` ({receipt.get('signature_scheme')})_"]
     return "\n".join(lines) + "\n"
 

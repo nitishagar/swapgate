@@ -125,6 +125,30 @@ def test_report_renders_both_formats(tmp_path):
         assert "<html" in fh.read()
 
 
+def test_report_renders_fence_breaking_receipt(tmp_path):
+    from swapgate.receipt import build_receipt_body
+
+    body = build_receipt_body(
+        {"suite": "f", "suite_version": "0.1.0", "n_cases": 1, "judge": "d",
+         "baseline": "b", "candidate": "c", "baseline_pass_rate": 1.0,
+         "candidate_pass_rate": 0.0, "regression_gap": 1.0, "fail_under": 0.0,
+         "max_regression": 1.0, "passed": False, "regressed_case_ids": ["c1"]},
+        [{"case_id": "c1", "baseline_output": "ok",
+          "baseline_verdict": {"passed": True, "label": "pass"},
+          "candidate_output": "x ``` y", "candidate_verdict": {"passed": False, "label": "fail"},
+          "regressed": True}],
+    )
+    receipt = str(tmp_path / "r.json")
+    with open(receipt, "w", encoding="utf-8") as fh:
+        json.dump(body, fh)
+    out = str(tmp_path / "r.md")
+    assert main(["report", "--receipt", receipt, "--format", "md", "--out", out]) == EXIT_OK
+    with open(out, encoding="utf-8") as fh:
+        text = fh.read()
+    assert text.count("```") == 4
+    assert "´´´" in text
+
+
 def test_missing_input_is_error(tmp_path):
     assert main(["capture", "--from", "litellm", "--in", str(tmp_path / "nope.jsonl"),
                  "--out", str(tmp_path / "o.jsonl")]) != EXIT_OK

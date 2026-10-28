@@ -5,7 +5,7 @@ Suite `indic-support` v0.1.0 — 4 cases, judge `deterministic`.
 - Baseline: `mock:parity` pass rate **0.5**
 - Candidate: `mock:seed-7` pass rate **0.5**
 - Regression gap: **0.0** (floor `0.5`, max gap `0.5`)
-- Issued: 2026-10-28T05:29:07.010858+00:00
+- Issued: 2026-10-28T06:49:39.392323+00:00
 - Content hash: ``
 
 ## Cases

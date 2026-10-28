@@ -19,6 +19,7 @@ dynamic = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+e2e = ["litellm>=1.89,<2"]
 
 [project.scripts]
 swapgate = "swapgate.cli:main"

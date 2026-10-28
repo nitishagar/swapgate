@@ -27,6 +27,14 @@ def test_markdown_receipt_contents():
     assert "swapgate verify" in text
 
 
+def test_markdown_escapes_fence_runs():
+    receipt = _receipt()
+    receipt["cases"][0]["candidate_output"] = "prefix ``` injected ``` suffix"
+    text = to_markdown(receipt)
+    assert text.count("```") == 4  # two blocks × open/close, none from the output
+    assert "´´´" in text
+
+
 def test_markdown_pass_verdict():
     receipt = _receipt()
     receipt["summary"]["passed"] = True
