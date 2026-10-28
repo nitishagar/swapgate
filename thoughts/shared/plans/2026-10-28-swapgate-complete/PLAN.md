@@ -67,7 +67,7 @@ Valid synthesis, invalid-check drop, bridge-await test with a fake async provide
 ### Success Criteria
 - [x] Local: `python -m pytest -q tests/test_rubrics_llm.py` → `6 passed` incl. drop + bridge tests · observed 2026-10-28.
 - [x] End-to-end: full `python -m pytest -q` → `105 passed, 1 skipped`; `git diff --exit-code -- tests/golden/` clean · observed 2026-10-28.
-- [ ] Manual: inspect one LLM-synthesised pending suite for sanity before its fixture text is frozen (uses `SWAPGATE_BASE_URL`/`SWAPGATE_MODEL` like the `live` marker when a live look is wanted; fixtures otherwise). [USER GATE — deferred to end-of-run review]
+- [x] Manual: inspect one LLM-synthesised pending suite for sanity before its fixture text is frozen (uses `SWAPGATE_BASE_URL`/`SWAPGATE_MODEL` like the `live` marker when a live look is wanted; fixtures otherwise). ✓ Live look 2026-10-28: qwen2.5:3b via local Ollama, 4 cases (1 good rubric, 1 placeholder-copying but vocabulary-valid, 2 base-only fallbacks); approve→compare→PASS verified. User confirmed sane.
 
 ## Phase 3: Scheduled regressions + run history
 ### Changes
