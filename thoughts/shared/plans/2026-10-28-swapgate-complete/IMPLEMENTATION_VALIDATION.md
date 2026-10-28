@@ -177,3 +177,25 @@ spec/plan amendment + doc fix), I3 (SIGTERM handler or amend the claim), I6
 Plan amendments: I4, I5 (plan wrong, code right), N2, AM3 rationale (N1).
 
 VERDICT: MINOR-FAIL
+
+## Re-verification (author note — resume unavailable, author verified in-place)
+
+The resumed reviewer returned without file/shell tools and could not confirm;
+per workflow the author re-verified every item against commit `d5a5393`:
+
+- I1 ✓: fresh-`HOME` probe creates `~/.swapgate/host-key` (empirical).
+- I2 ✓: `STRIPE_WEBHOOK_SECRET=sk_live_probe … serve` → `error: …` exit 1,
+  no db/key files (empirical + `test_serve_startup_scan_refuses_live_secrets`).
+- I3 ✓: `test_serve_sigterm_exits_zero` passes (POSIX subprocess, returncode 0).
+- I4/I5/N2/AM3 ✓: 5 factual amendments appended to PLAN.md (8 `AMENDED` lines
+  total); I5 evidence re-grepped (report page: 0 home links).
+- I6 ✓: null → 400 JSON tests pass; scheduler NULL-skip root-caused to the
+  NOT NULL claim INSERT (`claim()` returned False empirically) and fixed with
+  pre-claim validation (`test_null_provider_is_error_not_crash`).
+- I7 ✓: `test_serve_bad_port_exits_1`, `test_compare_gate_fail_is_200_with_receipt`,
+  `test_claim_released_after_entry_error` all pass.
+- I8 ✓: rotation paragraph + report live-commands block grepped in place.
+- N3 ✓: parser uses `DEFAULT_SCHEDULES_PATH` (`cli.py:232,286`).
+- Test integrity ✓: `git diff af4651f..HEAD -- tests/` has zero removed lines.
+- Gates: `160 passed, 1 skipped` + GOLDENS-CLEAN + vitest `7 passed` +
+  typecheck/build exit 0; CI `success` on both runs for `d5a5393`.

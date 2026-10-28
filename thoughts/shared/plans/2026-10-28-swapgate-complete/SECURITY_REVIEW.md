@@ -103,3 +103,24 @@ operator-only path); Stripe events with missing `id` collapse to event_key `"Non
 ## Verdict
 
 VERDICT: MINOR-FAIL
+
+## Re-verification (author note — resume unavailable, author verified in-place)
+
+The resumed reviewer returned without file/shell tools and left I1
+"unconfirmed", with a 4-point checklist. The author verified each against
+commit `d5a5393`:
+
+1. ✓ Both specs route through `_hosted_provider` (`serve.py` compare handler);
+   `isinstance` covers subclasses; `ValueError → 400` preserved (null probe →
+   `ValueError: bad provider spec (want a string): None`).
+2. ✓ `_post` sends only tenant data (model/messages/url) + the now-empty
+   `Authorization` header — no other server secret in headers/body (code read).
+3. ✓ Mechanism A/B: direct `parse_provider` forwards `SWAPGATE_API_KEY=marker`
+   (pre-fix behavior); `_hosted_provider` returns `''`. Post-fix
+   `test_hosted_never_forwards_operator_key` passes (capture server asserts
+   exactly `"Bearer "`, no marker); pre-existing
+   `test_provider_error_row_and_receipt_404` passes unmodified.
+4. ✓ Residual keyless SSRF bounded as scoped: bind still `127.0.0.1`, keys
+   operator-issued, errors truncated; no new routes.
+- Gates: `160 passed, 1 skipped` + CI `success` ×2. Nits 1–5 left as-is per
+  reported severity.
