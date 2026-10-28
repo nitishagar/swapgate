@@ -1,5 +1,26 @@
 @layer reset, tokens, base, layout, components;
 
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("fonts/ibm-plex-sans-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("fonts/ibm-plex-sans-600.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("fonts/ibm-plex-sans-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("fonts/ibm-plex-mono-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
 @layer reset {
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   img { display: block; max-width: 100%; }
@@ -22,7 +43,9 @@
     --pass: #5db87a;
     --fail: #e8704f;
     --serif: "Plantin MT Pro", Plantin, Georgia, "Times New Roman", serif;
-    --mono: "Departure Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   }
   :root[data-theme="light"] {
     --bg-deep: #f3f2f0;
@@ -40,11 +63,14 @@
   body {
     background: var(--bg-deep);
     color: var(--text);
-    font-family: var(--serif);
-    font-size: 1.05rem;
-    line-height: 1.6;
+    font-family: var(--sans);
+    font-size: 1.02rem;
+    line-height: 1.65;
+    transition: background-color 0.35s var(--ease-out), color 0.35s var(--ease-out);
   }
-  a { color: var(--color-terracotta-light); }
+  ::selection { background: var(--color-terracotta-light); color: #13110f; }
+  a { color: var(--color-terracotta-light); transition: color 0.2s var(--ease-out); }
+  :focus-visible { outline: 2px solid var(--color-sunkissed); outline-offset: 2px; }
   code, pre { font-family: var(--mono); }
   pre {
     background: var(--bg-canvas);
@@ -62,10 +88,15 @@
     padding: 0.05rem 0.35rem;
     font-size: 0.85em;
   }
-  h1, h2, h3 { line-height: 1.2; font-weight: 600; }
+  h1, h2, h3 { line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; }
   table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95rem; }
   th, td { border: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; }
   th { background: var(--panel); }
+  tbody tr { transition: background-color 0.2s var(--ease-out); }
+  tbody tr:hover { background: var(--bg-canvas); }
+  header.site, footer.site, pre, .card, th, td, .demo {
+    transition: background-color 0.35s var(--ease-out), border-color 0.35s var(--ease-out);
+  }
 }
 
 @layer layout {
@@ -76,9 +107,16 @@
     margin-bottom: 2.5rem;
   }
   header.site nav { display: flex; gap: 1.1rem; flex-wrap: wrap; font-size: 0.95rem; }
-  header.site nav a { color: var(--muted); text-decoration: none; }
+  header.site nav a { color: var(--muted); text-decoration: none; position: relative; padding-bottom: 0.15rem; }
+  header.site nav a::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+    background: var(--color-terracotta-light); border-radius: 2px;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.25s var(--ease-out);
+  }
+  header.site nav a:hover::after, header.site nav a[aria-current="page"]::after { transform: scaleX(1); }
   header.site nav a:hover, header.site nav a[aria-current="page"] { color: var(--text); }
-  .brand { font-size: 1.3rem; font-weight: 700; color: var(--text); text-decoration: none; }
+  .brand { font-size: 1.3rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.01em; }
   .brand b { color: var(--color-terracotta-light); font-weight: 700; }
   main > * + * { margin-top: 1.2rem; }
   main h1 { font-size: 2.1rem; }
@@ -90,26 +128,48 @@
 }
 
 @layer components {
-  .hero { padding: 2.5rem 0 1rem; }
-  .hero h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); max-width: 16ch; }
-  .hero h1 em { color: var(--color-sunkissed); font-style: italic; }
-  .hero p.lede { font-size: 1.25rem; color: var(--muted); max-width: 52ch; }
+  @keyframes hero-enter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  .hero { padding: 2.5rem 0 1rem; animation: hero-enter 0.6s var(--ease-out) both; }
+  .hero h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); max-width: 16ch; letter-spacing: -0.02em; }
+  .hero h1 em { color: var(--color-sunkissed); font-style: italic; font-family: var(--serif); }
+  .hero p.lede { font-size: 1.2rem; color: var(--muted); max-width: 52ch; }
   .cta-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.4rem; }
   .button {
     display: inline-block; padding: 0.6rem 1.2rem; border-radius: 0.5rem;
     background: var(--color-terracotta-light); color: #13110f !important;
     text-decoration: none; font-weight: 700;
+    transition: background-color 0.2s var(--ease-out), border-color 0.2s var(--ease-out),
+      color 0.2s var(--ease-out), transform 0.1s var(--ease-out);
   }
+  .button:hover { background: var(--color-sunkissed); }
+  .button:active { transform: translateY(1px); }
   .button.ghost { background: transparent; border: 1px solid var(--line); color: var(--text) !important; font-weight: 400; }
+  .button.ghost:hover { border-color: var(--color-terracotta-light); background: transparent; }
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; margin-top: 1rem; }
   .card { background: var(--bg-canvas); border: 1px solid var(--line); border-radius: 0.6rem; padding: 1.1rem 1.2rem; }
+  .card:hover { border-color: var(--color-terracotta-light); }
   .card h3 { font-size: 1.05rem; margin-bottom: 0.4rem; font-family: var(--mono); font-weight: 400; }
   .card p { color: var(--muted); font-size: 0.95rem; }
   .theme-toggle {
     background: transparent; border: 1px solid var(--line); border-radius: 0.4rem;
     color: var(--muted); cursor: pointer; padding: 0.3rem 0.7rem; font-family: var(--mono); font-size: 0.8rem;
+    transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
   }
+  .theme-toggle:hover { border-color: var(--color-terracotta-light); color: var(--text); }
   .verdict-pass { color: var(--pass); font-weight: 700; }
   .verdict-fail { color: var(--fail); font-weight: 700; }
   .kicker { font-family: var(--mono); font-size: 0.85rem; color: var(--color-sunkissed); }
+  .demo { margin-top: 1.6rem; border: 1px solid var(--line); border-radius: 0.6rem; overflow: hidden; background: var(--bg-canvas); }
+  .demo-bar { display: flex; gap: 0.45rem; align-items: center; padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--line); }
+  .demo-bar i { width: 0.65rem; height: 0.65rem; border-radius: 50%; background: var(--line); }
+  .demo-bar i:first-child { background: var(--color-terracotta-light); }
+  .demo img { width: 100%; height: auto; }
+  .demo figcaption { padding: 0.6rem 0.9rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); font-family: var(--mono); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 }

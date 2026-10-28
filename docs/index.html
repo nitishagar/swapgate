@@ -53,6 +53,11 @@ swapgate compare --suite evals/suite.json \
       <a class="button" href="quickstart.html">Get started in 60 seconds</a>
       <a class="button ghost" href="https://github.com/nitishagar/swapgate">GitHub</a>
     </div>
+    <figure class="demo" aria-label="Animated demo: install SwapGate, run a comparison, watch the gate fail a regressing candidate">
+      <div class="demo-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+      <img src="demo.gif" alt="Terminal recording: pip install swapgate, then swapgate compare with a regressing candidate prints baseline 0.5 candidate 0.0 gap 0.5 -> FAIL" width="720" height="244" loading="lazy">
+      <figcaption>$ swapgate compare … → FAIL — the gate blocks the swap on regression</figcaption>
+    </figure>
   </section>
 
   <h2>How it works</h2>

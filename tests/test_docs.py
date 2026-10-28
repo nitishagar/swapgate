@@ -72,3 +72,21 @@ def test_packaging_metadata_present():
     assert 'name = "swapgate"' in text
     assert "swapgate.cli:main" in text
     assert os.path.exists(os.path.join(ROOT, "packages", "swapgate-js", "package.json"))
+
+
+def test_homepage_demo_and_font_assets_exist():
+    """Homepage demo GIF + vendored fonts must exist and be wired (offline)."""
+    gif = os.path.join(DOCS, "demo.gif")
+    assert os.path.exists(gif), "docs/demo.gif missing (regenerate: docs/demo/make_demo.py)"
+    with open(gif, "rb") as fh:
+        assert fh.read(6) in (b"GIF89a", b"GIF87a")
+    for weight in ("400", "600", "700"):
+        path = os.path.join(DOCS, "fonts", f"ibm-plex-sans-{weight}.woff2")
+        assert os.path.exists(path), path
+    assert os.path.exists(os.path.join(DOCS, "fonts", "ibm-plex-mono-400.woff2"))
+    with open(os.path.join(DOCS, "index.html"), encoding="utf-8") as fh:
+        index = fh.read()
+    assert 'src="demo.gif"' in index
+    with open(os.path.join(DOCS, "style.css"), encoding="utf-8") as fh:
+        css = fh.read()
+    assert "fonts/ibm-plex-sans-400.woff2" in css
