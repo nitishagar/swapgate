@@ -180,7 +180,7 @@ before the curl.
 
 R3-F1 + R3-N1–N5 fixed in PLAN.md rev 3: `teams create` issuance + mint steps in P4 E2E and smoke job; curl `-o` capture; scheduler judge mapping + exit-1-no-row; hosted unapproved 400 no-row; composite claim key; received-vs-processed wording; due-default/scope/named node one-liner. Resume of the round-3 reviewer was requested but its successor arrived with file-read revoked and honestly declined to confirm — resume unavailable — author verified in-place (all 9 fix markers grep-confirmed above).
 
-## VERDICT: PASS (MINOR resolved; round-1 verdict below for history: MINOR-FAIL)
+## VERDICT: PASS (round-3 MINOR items resolved above; pre-fix verdict was MINOR-FAIL)
 
 Rev 3 fixes every round-2 finding (17 Important + 8 nits, each confirmed
 above with its fixing plan line) and earns PASS on 10 of 12 checklist
