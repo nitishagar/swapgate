@@ -12,7 +12,7 @@ Requirements only. Anything mechanistic here would be exempt from validation —
 - **Receipt canonical bytes.** Sorted keys, compact separators, integral floats as ints, bools distinct; `content_hash` only over volatile-free dicts.
 - **Receipt signature.** HMAC-SHA256(key, content_hash hex), scheme `hmac-sha256-v1`; TS mirror byte-compatible for the receipt shape (pinned by the shared signed golden).
 - **Unsigned shapes.** CLI (`"none"` + empties) and MCP (hash present, signature keys absent) stay distinct; both fail `verify`.
-- **Approval before run.** No runnable suite without pending→approve; CLI-inline and lib-helper behaviors stay aligned.
+- **Approval before run.** No runnable suite without pending→approve; CLI-inline and lib-helper behaviors stay aligned. Both stamp `metadata.approved` on success; scheduler and hosted API refuse unstamped suites.
 - **Capture lossiness.** Corrupt JSON skipped+counted; parser-`None` skipped+counted; parser-raise aborts. No silent conversion either way.
 - **TraceEvent compatibility.** Unknown keys dropped; `trace_id`/`model` required.
 - **Check vocabulary.** 7 deterministic types; unknown type fails the check, never raises; empty rubric vacuous-pass (deterministic only).
@@ -41,7 +41,8 @@ Requirements only. Anything mechanistic here would be exempt from validation —
 - **New-command exit codes.** `run-scheduled`: 0 all-pass-or-none-due / 2 any gate fail / 1 error. `manifest --check`: 0 clean / 1 drift. `serve`: 0 clean shutdown / 1 bind/config error.
 - **Scheduled approval refusal.** The scheduler refuses unapproved suites (missing approval stamp) and any `.pending.json` input — exit 1, no run recorded.
 - **Scheduled failure records.** A provider exception during a scheduled run records a failure row (NULL receipt) and exits 1; `last_run` advances only after a completed run.
-- **Hosted threshold validation.** `fail_under`/`max_regression` must be finite numbers in [0,1]; anything else is a 400 with no run recorded.
+- **Hosted threshold validation.** `fail_under`/`max_regression` must be int/float, explicitly not bool, finite, in [0,1]; anything else is a 400 with no run recorded. Unknown `judge` on hosted is a 400 (distinct from CLI `SystemExit` / MCP `ValueError`).
+- **Billing credential hygiene.** Billing refuses to initialize if any configured credential matches live patterns (`sk_live_*`, `rzp_live_*`); Stripe requires `livemode==false`; Razorpay requires allowlisted account. Webhook secrets come from env only.
 - **Webhook idempotency.** Each provider event id is processed at most once; duplicates return success without reprocessing.
 - **Team error indistinguishability.** Invalid keys → 401; valid key + foreign record → 404 (never 403), so record existence is not oracle-able.
 
