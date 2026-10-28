@@ -3,6 +3,12 @@
 All notable changes to SwapGate. Format follows Keep a Changelog; versioning is
 SemVer. Release tagging is the maintainer's call.
 
+## [0.2.1] - 2026-10-28
+
+### Added
+
+- README for the npm SDK (`swapgate` package page no longer renders empty).
+
 ## [0.2.0] - 2026-10-28
 
 ### Added
